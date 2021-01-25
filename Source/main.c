@@ -3,15 +3,26 @@
 #include <stdlib.h>
 #include "../Include/token.h"
 
+int DEBUG_MODE = 0; //是否为调试模式 0否1是
+
 int main(int argc,char *argv[])
 {
     //读取参数
     int i;
-    printf("接收的参数---------\n");
     for (i=0;i<argc;i++){
-        printf("%s\n",argv[i]);
+        if(i==0)
+            continue; //不取程序名
+
+        if(strcmp(argv[i],"--debug")==0){
+            DEBUG_MODE = 1;
+            printf("Switch to DEBUG_MODE\n");
+            continue;
+        }else{
+            printf("Get a source: %s\n",argv[i]);
+        }
+        
     }
-    printf("-------------------\n");
+    
     //读取源码
     FILE *fp;
     char load_file[]="source.let";//文件名
