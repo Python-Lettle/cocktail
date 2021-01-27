@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "../Include/token.h"
+#include "../Include/standard_function.h"
 
 int DEBUG_MODE = 0; //是否为调试模式 0否1是
 
@@ -15,7 +16,7 @@ int main(int argc,char *argv[])
 
         if(strcmp(argv[i],"--debug")==0){
             DEBUG_MODE = 1;
-            printf("Switch to DEBUG_MODE\n");
+            print("Switch to DEBUG_MODE");
             continue;
         }else{
             printf("Get a source: %s\n",argv[i]);
