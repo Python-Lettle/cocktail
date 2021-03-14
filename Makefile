@@ -1,11 +1,14 @@
-CC=gcc
-FILENAME=letlang
+# Author: Lettle
 
-INCLUDE_F = ./Include
-SOURCE_F = ./Source
+
+# 变量
+CC = g++
+FILENAME = cocktail
+
+s = /Source
+s_main = $(s)/main
 
 all:
-	$(CC) -o $(FILENAME) $(INCLUDE_F)/*.h $(SOURCE_F)/*.c
+	$(CC) -o $(FILENAME) .$(s_main)/*.cpp
 
-clean:
-	rm -rf $(FILENAME)*
+
