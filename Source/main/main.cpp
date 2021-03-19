@@ -7,16 +7,27 @@ using namespace std;
 
 //关键字
 string KEYWORD[15]={
+    "package","import",
     "if","else","void","return",
-    "while","then","for","do",
-    "int","char","double","float",
-    "case","cin","cout"};
-char SEPARATER[8]={';',',','{','}','[',']','(',')'};    //分隔符
-char OPERATOR[8]={'+','-','*','/','>','<','=','!'};     //运算符
-char FILTER[4]={' ','\t','\r','\n'};                    //过滤符
-const int IDENTIFIER=100;         //标识符值
-const int CONSTANT=101;           //常数值
-const int FILTER_VALUE=102;       //过滤字符值
+    "while","for","do",
+    "int","string","double","float"};
+
+//分隔符
+char SEPARATER[8]={';',',','{','}','[',']','(',')'};
+//运算符
+char OPERATOR[8]={'+','-','*','/','>','<','=','!'};
+//过滤符
+char FILTER[4]={' ','\t','\r','\n'};
+
+//Token结构
+struct Token 
+{
+    int line;   //行号
+    int ch;     //字符位置
+    string type;   //Tonen类型
+    string source;//源代码
+
+};
 
 /*--------- 函数 ---------*/
 /**判断是否为关键字**/
@@ -81,50 +92,59 @@ int value(T *a,int n,T str){
 }
 
 /**词法分析**/
-map<int,string> analyse(FILE * fpin){
-    char ch=' ';
-    string arr="";
-    int counter = 0;
-    map<int,string> result;
+map<int,Token> ana(FILE * fpin){
+    char ch=' ';     //取一个字符
+    string arr="";   //用ch连接字符串
+    Token t; 
+    int counter = 0; //记录token数
+    int line = 1;  //当前行号
+    int char_count;//当前字符
+    map<int,Token> result; //返回tokens
     do{
+        //循环获取字符
         ch = fgetc(fpin);
-        if(feof(fpin)){break;};
+        if(feof(fpin)){break;};//EOF则停止
+
         arr="";
-        if(IsFilter(ch)){}              //判断是否为过滤符
-        else if(IsLowLetter(ch)){       //判断是否为关键字
+        t={};
+        //判断过滤符
+        if(IsFilter(ch)){continue;}
+        //判断关键字或变量名
+        else if(IsLowLetter(ch)){
+            //继续获取小写字母
             while(IsLowLetter(ch)){
 				arr += ch;
 				ch=fgetc(fpin);
             }
 			//fseek(fpin,-1L,SEEK_CUR);
 			if(IsKeyword(arr)){
-                printf("%3d    ",value(KEYWORD,15,arr));
-				cout<<arr<<"  关键字"<<endl;
+				cout<<arr<<"\t\t关键字"<<endl;
 			}
-			else
-            {
-                printf("%3d    ",IDENTIFIER);
-                cout<<arr<<"  标识符"<<endl;
+            else{
+                //继续获取大小写字母
+                while(IsLowLetter(ch)||IsUpLetter(ch)){
+                    arr += ch;
+                    ch = fgetc(fpin);
+                }
+                cout<<arr<<"\t\t变量名"<<endl;
+                /*
+                if(IsSeparater(++ch))
+                    break;
+                */
             }
         }
-        else if(IsDigit(ch)){           //判断是否为数字
-            while(IsDigit(ch)||(ch=='.'&&IsDigit(fgetc(fpin)))){
+        //判断数字
+        else if(IsDigit(ch)){
+            while(IsDigit(ch)){
                 arr += ch;
-                ch=fgetc(fpin);
+                if(IsSeparater(++ch))
+                    break;
+                ch = fgetc(fpin);
+                
             }
-            fseek(fpin,-1L,SEEK_CUR);
-            printf("%3d    ",CONSTANT);
-            cout<<arr<<"  整形数"<<endl;
+            cout <<arr<<"\t\t数字"<<endl;
         }
-        else if(IsUpLetter(ch)||IsLowLetter(ch)||ch=='_'){
-            while(IsUpLetter(ch)||IsLowLetter(ch)||ch=='_'||IsDigit(ch)){
-                arr += ch;
-                ch=fgetc(fpin);
-            }
-            fseek(fpin,-1L,SEEK_CUR);
-            printf("%3d    ",CONSTANT);
-            cout<<arr<<"  标识符"<<endl;
-        }
+        //判断符号
         else switch(ch){
         case '+':
         case '-':
@@ -136,11 +156,15 @@ map<int,string> analyse(FILE * fpin){
         case '!':
             {
                 arr += ch;
-                printf("%3d    ",value(OPERATOR,8,*arr.data()));
-                cout<<arr<<"  运算符"<<endl;
+                cout<<arr<<"\t\t运算符"<<endl;
                 break;
             }
         case ';':
+            {
+                arr += ch;
+                cout <<arr<<"\t\t;"<<endl;
+                break;
+            }
         case ',':
         case '(':
         case ')':
@@ -150,35 +174,43 @@ map<int,string> analyse(FILE * fpin){
         case '}':
             {
               arr += ch;
-              printf("%3d    ",value(SEPARATER,8,*arr.data()));
-              cout<<arr<<"  分隔符"<<endl;
+              cout<<arr<<"\t\t分隔符"<<endl;
               break;
+            }
+        case '"':
+            {
+                arr += ch;//将双引号加入
+                ch=fgetc(fpin);//跳到下一字符
+                while(ch!='"'){
+                    arr+=ch;
+                    ch=fgetc(fpin);
+                }
+                arr += ch;
+                cout <<arr<<"\t\t字符串"<<endl;
+                break;
             }
         default :cout<<"("<<ch<<")"<<":无法识别的字符！"<<endl;
         }
-        if(!arr.empty()){result.insert(pair<int,string>(counter++,arr));}
+        //if(!arr.empty()){result.insert(pair<int,Token>(counter++,arr))}
+        counter++;
+        //cout <<counter<<endl;
     }while(1);
-
+    cout <<"count:"<<counter<<endl;
     return result;
-
 }
 
 int main()
 {
     char inFile[40];
+    string analysed; 
     FILE *fpin;
-    cout<<"请输入源文件名（包括路径和后缀）:";
-    cin>>inFile;
-    fpin=fopen(inFile,"r");
+    //cout<<"File name:";
+    //cin>>inFile;
+    fpin=fopen("src.txt","r");
     cout<<"词法分析: "<<endl;
 
-    map<int,string> tokens;
-    tokens = analyse(fpin);
-    cout<<"------------tokens: "<<endl;
-    int i;
-    for(i=0;i<tokens.size();i++){
-        cout<<tokens[i]<<endl;
-    }
-    cout<<"一共有"<<i<<endl;
+    map<int,Token> tokens;
+    ana(fpin);
+
     return 0;
 }

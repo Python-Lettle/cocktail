@@ -1,5 +1,9 @@
+package test;
+
+
 int main()
 {
-    char filename[40];
+    string content = "hello";
+    int number = 666;
     return 0;
 }
