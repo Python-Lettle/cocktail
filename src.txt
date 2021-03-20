@@ -1,7 +1,7 @@
 package test;
 
 
-int main()
+int main(int a)
 {
     string content = "hello";
     int number = 666;
