@@ -53,7 +53,6 @@ map<int,Token> ana(FILE * fpin)
     int char_count=0;//当前字符位置
     map<int,Token> result; //返回tokens
 
-    //string type="None"; //程序当前采集类型
     do{
         //循环获取字符
         ch = fgetc(fpin);
@@ -136,6 +135,23 @@ map<int,Token> ana(FILE * fpin)
                     arr=ch;ch=fgetc(fpin);}
                 line++;char_count=0;
                 continue;} //行数增加
+                if(ch=='*'){
+                    //进入多行注释模式
+                    do{
+
+                    while(ch!='*'){
+                        if(ch=='\n'){line++;char_count=0;}
+                        ch=fgetc(fpin);
+                    }
+                    ch=fgetc(fpin);
+                    if(ch=='/'){break;}
+                    else if(feof(fpin)){break;};//空停止
+
+                    
+                    }while(1);
+                    
+                }
+                break;
             }
         case '>':
         case '<':

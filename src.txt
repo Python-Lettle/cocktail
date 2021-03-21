@@ -1,9 +1,12 @@
 package test;
 
-
+/*
+    多行注释不能被读取
+    这里是演示
+*/
 int main(int a)
 {
-    string content = "hello"; //这里是注释
+    string content = "hello"; //这里是单行注释测试
     int number = 666;
     return 0;
 }
