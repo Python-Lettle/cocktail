@@ -3,94 +3,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "../../Include/util.h"
+
 using namespace std;
 
-//关键字
-string KEYWORD[15]={
-    "package","import",
-    "if","else","void","return",
-    "while","for","do",
-    "int","string","double","float"};
-
-//常量
-const string SEPARATE = "分隔符";
-const string OPERATE = "运算符";
-const string VAR = "变量名";
-const string KEY = "关键字";
-const string NUM = "数字";
-const string BOOLEAN = "布尔值";
-const string STRING = "字符串";
-
-//分隔符
-char SEPARATER[8]={';',',','{','}','[',']','(',')'};
-//运算符
-char OPERATOR[8]={'+','-','*','/','>','<','=','!'};
-//过滤符
-char FILTER[4]={' ','\t','\r','\n'};
-
-//Token结构
-struct Token 
-{
-    int line;   //行号
-    int ch;     //字符位置
-    string type;   //Tonen类型
-    string source;//源代码
-
-};
-
-/*--------- 函数 ---------*/
-/**判断是否为关键字**/
-bool IsKeyword(string word){
-    for(int i=0;i<15;i++){
-        if(KEYWORD[i]==word){
-            return true;
-        }
-    }
-    return false;
-}
-/**判断是否为分隔符**/
-bool IsSeparater(char ch){
-    for(int i=0;i<8;i++){
-        if(SEPARATER[i]==ch){
-            return true;
-        }
-    }
-    return false;
-}
- 
-/**判断是否为运算符**/
-bool IsOperator(char ch){
-    for(int i=0;i<8;i++){
-        if(OPERATOR[i]==ch){
-            return true;
-        }
-    }
-    return false;
-}
-/**判断是否为过滤符**/
-bool IsFilter(char ch){
-    for(int i=0;i<4;i++){
-        if(FILTER[i]==ch){
-            return true;
-        }
-    }
-    return false;
-}
-/**判断是否为大写字母**/
-bool IsUpLetter(char ch){
-    if(ch>='A' && ch<='Z') return true;
-    return false;
-}
-/**判断是否为小写字母**/
-bool IsLowLetter(char ch){
-    if(ch>='a' && ch<='z') return true;
-    return false;
-}
-/**判断是否为数字**/
-bool IsDigit(char ch){
-    if(ch>='0' && ch<='9') return true;
-    return false;
-}
 /**返回每个字的值**/
 template <class T>
 int value(T *a,int n,T str){
@@ -99,21 +15,30 @@ int value(T *a,int n,T str){
 	}
 	return -1;
 }
+//Token结构
+struct Token
+{
+    int line;   //行号
+    int ch;     //字符位置
+    string source;//源代码
+    string type;   //Tonen类型
 
-/**词法分析**/
+    Token(int li,int c,string sou,string tp):line(li),ch(c),source(sou),type(tp){}
+};
+
+/**----------词法分析器----------**/
 map<int,Token> ana(FILE * fpin)
 {
     const string TABLE = "\t\t\t";
-
+    Token t = {0,0,"a","n"};
     char ch=' ';     //取一个字符
-    string arr="";   //用ch连接字符串
-    Token t; 
+    string arr="";   //用ch连接字符串 
     int counter = 0; //记录token数
-    int line = 0;  //当前行号
-    int char_count;//当前字符位置
+    int line = 1;  //当前行号
+    int char_count=0;//当前字符位置
     map<int,Token> result; //返回tokens
 
-    string type="None"; //程序当前采集类型
+    //string type="None"; //程序当前采集类型
     do{
         //循环获取字符
         ch = fgetc(fpin);
@@ -128,38 +53,39 @@ map<int,Token> ana(FILE * fpin)
         
         //判断关键字或变量名
         else if(IsLowLetter(ch)){
+            t.ch = char_count;
             //继续获取小写字母
             while(IsLowLetter(ch+1)){
                 //如果下一位还是小写字母则加入
 				arr += ch;
 				ch=fgetc(fpin);
+                char_count++;
             }
 			//fseek(fpin,-1L,SEEK_CUR);
+            t.line = line;
+            t.source = arr;
 			if(IsKeyword(arr)){
+                t.type = KEY;
 				cout<<arr<<TABLE<<KEY<<endl;
 			}
             else{
                 //继续获取大小写字母
-                while(IsLowLetter(ch+1)||IsUpLetter(ch+1)){
-                    arr += ch;
-                    ch = fgetc(fpin);
-                }
+              while(IsLowLetter(ch+1)||IsUpLetter(ch+1)){
+                arr += ch;ch = fgetc(fpin);char_count++;}
+                t.type = VAR;
                 cout <<arr<<TABLE<<VAR<<endl;
             }
-            
-                
+            result.insert(pair<int,Token>(++counter,t));
         }
         //判断数字
         else if(IsDigit(ch)){
+            t.ch = char_count;
             while(IsDigit(ch)){
-                arr += ch;
-                /*
-                if(IsSeparater(ch+1))
-                    break;
-                    */
-                ch = fgetc(fpin);
-                
-            }
+                arr += ch;ch = fgetc(fpin);char_count++;}
+            t.line = line;
+            t.source = arr;
+            t.type = NUM;
+            result.insert(pair<int,Token>(++counter,t));
             cout <<arr<<TABLE<<NUM<<endl;
         }
         //判断符号
@@ -168,10 +94,16 @@ map<int,Token> ana(FILE * fpin)
             {
                 arr += ch;//将双引号加入
                 ch=fgetc(fpin);//跳到下一字符
+                t.ch = char_count;
+                char_count++;
                 while(ch!='"'){
-                    arr+=ch;ch=fgetc(fpin);
-                }
+                    arr+=ch;ch=fgetc(fpin);char_count++;}
                 arr += ch;
+                t.line = line;
+                t.source = arr;
+                t.type = STRING;
+                result.insert(pair<int,Token>(++counter,t));
+
                 cout <<arr<<TABLE<<STRING<<endl;
                 break;
             }
@@ -184,12 +116,22 @@ map<int,Token> ana(FILE * fpin)
         case '=':
         case '!':
             {
+                t.line = line;
+                t.ch = char_count;
+                t.source = ch;
+                t.type = OPERATE;
+                result.insert(pair<int,Token>(++counter,t));
                 arr += ch;
                 cout<<arr<<TABLE<<OPERATE<<endl;
                 break;
             }
         case ';':
             {
+                t.line = line;
+                t.ch = char_count;
+                t.source = ch;
+                t.type = ";";
+                result.insert(pair<int,Token>(++counter,t));
                 cout<<ch<<TABLE<<";"<<endl;
                 break;
             }
@@ -197,6 +139,12 @@ map<int,Token> ana(FILE * fpin)
         case '(':
         case ')':
             {
+                //t = {line,char_count,ch,SEPARATE};
+                t.line = line;
+                t.ch = char_count;
+                t.source = ch;
+                t.type = SEPARATE;
+                result.insert(pair<int,Token>(++counter,t));
                 cout<<ch<<TABLE<<SEPARATE<<endl;
                 break;
             }
@@ -205,9 +153,15 @@ map<int,Token> ana(FILE * fpin)
         case '{':
         case '}':
             {
-              arr += ch;
-              cout<<arr<<TABLE<<SEPARATE<<endl;
-              break;
+                //t = {line,char_count,ch,SEPARATE};
+                t.line = line;
+                t.ch = char_count;
+                t.source = ch;
+                t.type = SEPARATE;
+                result.insert(pair<int,Token>(++counter,t));
+
+                cout<<ch<<TABLE<<SEPARATE<<endl;
+                break;
             }
         
         default :
@@ -219,9 +173,26 @@ map<int,Token> ana(FILE * fpin)
         //if(!arr.empty()){result.insert(pair<int,Token>(counter++,arr))}
        
     }while(1);
-
+    //cout <<counter<<endl;
     return result;
 }
+
+/** 显示词法分析结果 **/
+
+void showTokens(map<int,Token> tokens)
+{
+    map<int,Token>::iterator it;
+    for(it=tokens.begin();it!=tokens.end();it++){
+        cout<<it->first
+            <<"\t"<<it->second.line<<":"<<it->second.ch
+            <<"\t"<<it->second.source
+            <<"\t"<<it->second.type
+            <<endl;
+    }
+    return;
+}
+
+/**----------主函数----------**/
 int main()
 {
     char inFile[40];
@@ -233,8 +204,10 @@ int main()
     cout<<"词法分析: "<<endl;
 
     map<int,Token> tokens;
-    ana(fpin);
-
+    tokens = ana(fpin);
+    
+    cout <<"Tokens----------------"<<endl;
+    showTokens(tokens);
     return 0;
 }
 
