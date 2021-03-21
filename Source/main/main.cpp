@@ -26,6 +26,21 @@ struct Token
     Token(int li,int c,string sou,string tp):line(li),ch(c),source(sou),type(tp){}
 };
 
+
+/** 显示词法分析结果 **/
+void showTokens(map<int,Token> tokens)
+{
+    map<int,Token>::iterator it;
+    for(it=tokens.begin();it!=tokens.end();it++){
+        cout<<it->first
+            <<"\t"<<it->second.line<<":"<<it->second.ch
+            <<"\t"<<it->second.source
+            <<"\t"<<it->second.type
+            <<endl;
+    }
+    return;
+}
+
 /**----------词法分析器----------**/
 map<int,Token> ana(FILE * fpin)
 {
@@ -49,6 +64,7 @@ map<int,Token> ana(FILE * fpin)
         if(ch=='\n'){
             line++;char_count=0;
             continue;} //行数增加
+
         if(IsFilter(ch)){continue;}
         
         //判断关键字或变量名
@@ -111,6 +127,16 @@ map<int,Token> ana(FILE * fpin)
         case '-':
         case '*':
         case '/':
+            {
+                arr = ch;
+                ch = fgetc(fpin);char_count++;
+                if(ch=='/'){
+                    //进入单行注释模式
+                    while(ch!='\n'){
+                    arr=ch;ch=fgetc(fpin);}
+                line++;char_count=0;
+                continue;} //行数增加
+            }
         case '>':
         case '<':
         case '=':
@@ -177,21 +203,6 @@ map<int,Token> ana(FILE * fpin)
     return result;
 }
 
-/** 显示词法分析结果 **/
-
-void showTokens(map<int,Token> tokens)
-{
-    map<int,Token>::iterator it;
-    for(it=tokens.begin();it!=tokens.end();it++){
-        cout<<it->first
-            <<"\t"<<it->second.line<<":"<<it->second.ch
-            <<"\t"<<it->second.source
-            <<"\t"<<it->second.type
-            <<endl;
-    }
-    return;
-}
-
 /**----------主函数----------**/
 int main()
 {
@@ -211,37 +222,4 @@ int main()
     return 0;
 }
 
-/*
-void paster()
-{
-//模式控制
-        switch(type){
-            case NO:
-            {
-                if(IsDigit(ch)){type = NUM;}
-                else if(IsLowLetter(ch)){type=WD;}
-                else if(IsUpLetter(ch)){type=VAR;}
-                else if(IsOperator(ch)){type=OPERATE;}
-                arr += ch;
-                break;
-            }
-            case KEY:
-                {
 
-                    break;
-                }
-            case VAR:
-                {
-                    break;
-                }
-            case SEPARATE:
-                {
-                    break;
-                }
-            case OEPRATE:
-                {
-                    break;
-                }
-            default: cout <<"default"<<endl;
-        }}
-*/

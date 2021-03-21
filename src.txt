@@ -3,7 +3,7 @@ package test;
 
 int main(int a)
 {
-    string content = "hello";
+    string content = "hello"; //这里是注释
     int number = 666;
     return 0;
 }
