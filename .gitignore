@@ -7,6 +7,8 @@ bin-release/
 # Other files and folders
 .settings/
 test/
+Object/
+debug/
 
 # Executables
 *.swf

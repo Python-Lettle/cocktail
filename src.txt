@@ -6,6 +6,9 @@ package test;
 */
 int main(int a)
 {
+    /*
+       在这也读不到
+    */
     string content = "hello"; //这里是单行注释测试
     int number = 666;
     return 0;

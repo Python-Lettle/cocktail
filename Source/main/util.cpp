@@ -1,4 +1,4 @@
-#include "../../Include/util.h"
+#include "util.h"
 
 /**判断是否为关键字**/
 bool IsKeyword(string word){

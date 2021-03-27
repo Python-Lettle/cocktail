@@ -3,7 +3,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "../../Include/util.h"
+#include "globals.h"
+#include "util.h"
 
 using namespace std;
 
@@ -15,17 +16,6 @@ int value(T *a,int n,T str){
 	}
 	return -1;
 }
-//Token结构
-struct Token
-{
-    int line;   //行号
-    int ch;     //字符位置
-    string source;//源代码
-    string type;   //Tonen类型
-
-    Token(int li,int c,string sou,string tp):line(li),ch(c),source(sou),type(tp){}
-};
-
 
 /** 显示词法分析结果 **/
 void showTokens(map<int,Token> tokens)
@@ -81,14 +71,14 @@ map<int,Token> ana(FILE * fpin)
             t.source = arr;
 			if(IsKeyword(arr)){
                 t.type = KEY;
-				cout<<arr<<TABLE<<KEY<<endl;
+				//cout<<arr<<TABLE<<KEY<<endl;
 			}
             else{
                 //继续获取大小写字母
               while(IsLowLetter(ch+1)||IsUpLetter(ch+1)){
                 arr += ch;ch = fgetc(fpin);char_count++;}
                 t.type = VAR;
-                cout <<arr<<TABLE<<VAR<<endl;
+                //cout <<arr<<TABLE<<VAR<<endl;
             }
             result.insert(pair<int,Token>(++counter,t));
         }
@@ -101,7 +91,7 @@ map<int,Token> ana(FILE * fpin)
             t.source = arr;
             t.type = NUM;
             result.insert(pair<int,Token>(++counter,t));
-            cout <<arr<<TABLE<<NUM<<endl;
+            //cout <<arr<<TABLE<<NUM<<endl;
         }
         //判断符号
         switch(ch){
@@ -119,7 +109,7 @@ map<int,Token> ana(FILE * fpin)
                 t.type = STRING;
                 result.insert(pair<int,Token>(++counter,t));
 
-                cout <<arr<<TABLE<<STRING<<endl;
+                //cout <<arr<<TABLE<<STRING<<endl;
                 break;
             }
         case '+':
@@ -164,7 +154,7 @@ map<int,Token> ana(FILE * fpin)
                 t.type = OPERATE;
                 result.insert(pair<int,Token>(++counter,t));
                 arr += ch;
-                cout<<arr<<TABLE<<OPERATE<<endl;
+                //cout<<arr<<TABLE<<OPERATE<<endl;
                 break;
             }
         case ';':
@@ -174,7 +164,7 @@ map<int,Token> ana(FILE * fpin)
                 t.source = ch;
                 t.type = ";";
                 result.insert(pair<int,Token>(++counter,t));
-                cout<<ch<<TABLE<<";"<<endl;
+                //cout<<ch<<TABLE<<";"<<endl;
                 break;
             }
         case ',':
@@ -187,7 +177,7 @@ map<int,Token> ana(FILE * fpin)
                 t.source = ch;
                 t.type = SEPARATE;
                 result.insert(pair<int,Token>(++counter,t));
-                cout<<ch<<TABLE<<SEPARATE<<endl;
+                //cout<<ch<<TABLE<<SEPARATE<<endl;
                 break;
             }
         case '[':
@@ -202,7 +192,7 @@ map<int,Token> ana(FILE * fpin)
                 t.type = SEPARATE;
                 result.insert(pair<int,Token>(++counter,t));
 
-                cout<<ch<<TABLE<<SEPARATE<<endl;
+                //cout<<ch<<TABLE<<SEPARATE<<endl;
                 break;
             }
         
@@ -228,7 +218,7 @@ int main()
     //cout<<"File name:";
     //cin>>inFile;
     fpin=fopen("src.txt","r");
-    cout<<"词法分析: "<<endl;
+    cout<<"1.词法分析"<<endl;
 
     map<int,Token> tokens;
     tokens = ana(fpin);
