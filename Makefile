@@ -15,7 +15,8 @@ HEADS = util.h global.h
 OBJ_SRC = /Object
 
 SRCS = $(s_main)/main.cpp \
-       $(s_main)/util.cpp
+       $(s_main)/util.cpp \
+       $(s_main)/token.cpp
 INC = -I .$(i)
 OBJS = $(SRCS:.c=.o)
 

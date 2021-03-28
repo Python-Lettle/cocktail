@@ -18,213 +18,99 @@ int value(T *a,int n,T str){
 }
 
 /** 显示词法分析结果 **/
-void showTokens(map<int,Token> tokens)
-{
-    map<int,Token>::iterator it;
-    for(it=tokens.begin();it!=tokens.end();it++){
-        cout<<it->first
-            <<"\t"<<it->second.line<<":"<<it->second.ch
-            <<"\t"<<it->second.source
-            <<"\t"<<it->second.type
-            <<endl;
-    }
-    return;
-}
+void showTokens(map<int,Token> tokens);
 
 /**----------词法分析器----------**/
-map<int,Token> ana(FILE * fpin)
+map<int,Token> ana(FILE * fpin);
+
+/**----------代码生成器----------**/
+string asm_print()
 {
-    const string TABLE = "\t\t\t";
-    Token t = {0,0,"a","n"};
-    char ch=' ';     //取一个字符
-    string arr="";   //用ch连接字符串 
-    int counter = 0; //记录token数
-    int line = 1;  //当前行号
-    int char_count=0;//当前字符位置
-    map<int,Token> result; //返回tokens
+	string print_asm = 
+		"\t.globl print\n"
+		"print:\n"
+    	"\tstp x29, x30, [sp, #-16]!\n"
+		"\tmov x29, sp\n"
+		"\tbl  puts\n"
+		"\tldp x29, x30, [sp], #16\n"
+		"\tret";
+	return	print_asm;
+}
+string asm_string()
+{
+	string string_asm =
+		".helstr:\n"
+		"\t.asciz\t\"hello\"\n"
+		"\t.size\t.helstr, 6";
+	return string_asm;
+}
+string asm_main()
+{
+	string main_asm =
+	"main:\n"
+    "\tstp x29, x30, [sp, #-16]!\n"
+    "\tadrp    x0, .helstr\n"
+    "\tadd x0, x0, :lo12:.helstr\n"
+	"\tmov x29, sp\n"
+    "\tbl  puts\n"
+	"\tmov w0, wzr\n"
+	"\tldp x29, x30, [sp], #16\n"
+	"\tret\n";
+	return main_asm;
+}
+string asm_head()
+{
+	string head_asm =
+		"\t.globl main\n";
+	return head_asm;
+}
+void general()
+{
+		
+	string prt_asm =
+		"\t.global print\n"
+		"print:\n"
+		"\tb\tputs";
 
-    do{
-        //循环获取字符
-        ch = fgetc(fpin);
-        if(feof(fpin)){break;};//EOF则停止
-        char_count++;
-        arr = "";
-        //判断过滤符
-        if(ch=='\n'){
-            line++;char_count=0;
-            continue;} //行数增加
+	string out_asm = 
+		"\t.text\n";
+	FILE *out;
+	out = fopen("test.s","w+");
 
-        if(IsFilter(ch)){continue;}
-        
-        //判断关键字或变量名
-        else if(IsLowLetter(ch)){
-            t.ch = char_count;
-            //继续获取小写字母
-            while(IsLowLetter(ch+1)){
-                //如果下一位还是小写字母则加入
-				arr += ch;
-				ch=fgetc(fpin);
-                char_count++;
-            }
-			//fseek(fpin,-1L,SEEK_CUR);
-            t.line = line;
-            t.source = arr;
-			if(IsKeyword(arr)){
-                t.type = KEY;
-				//cout<<arr<<TABLE<<KEY<<endl;
-			}
-            else{
-                //继续获取大小写字母
-              while(IsLowLetter(ch+1)||IsUpLetter(ch+1)){
-                arr += ch;ch = fgetc(fpin);char_count++;}
-                t.type = VAR;
-                //cout <<arr<<TABLE<<VAR<<endl;
-            }
-            result.insert(pair<int,Token>(++counter,t));
-        }
-        //判断数字
-        else if(IsDigit(ch)){
-            t.ch = char_count;
-            while(IsDigit(ch)){
-                arr += ch;ch = fgetc(fpin);char_count++;}
-            t.line = line;
-            t.source = arr;
-            t.type = NUM;
-            result.insert(pair<int,Token>(++counter,t));
-            //cout <<arr<<TABLE<<NUM<<endl;
-        }
-        //判断符号
-        switch(ch){
-        case '"':
-            {
-                arr += ch;//将双引号加入
-                ch=fgetc(fpin);//跳到下一字符
-                t.ch = char_count;
-                char_count++;
-                while(ch!='"'){
-                    arr+=ch;ch=fgetc(fpin);char_count++;}
-                arr += ch;
-                t.line = line;
-                t.source = arr;
-                t.type = STRING;
-                result.insert(pair<int,Token>(++counter,t));
+	out_asm += asm_head();
+	out_asm += asm_main();
+	out_asm += asm_string();
 
-                //cout <<arr<<TABLE<<STRING<<endl;
-                break;
-            }
-        case '+':
-        case '-':
-        case '*':
-        case '/':
-            {
-                arr = ch;
-                ch = fgetc(fpin);char_count++;
-                if(ch=='/'){
-                    //进入单行注释模式
-                    while(ch!='\n'){
-                    arr=ch;ch=fgetc(fpin);}
-                line++;char_count=0;
-                continue;} //行数增加
-                if(ch=='*'){
-                    //进入多行注释模式
-                    do{
+	fprintf(out,"%s",out_asm.c_str());
+	// fputs(print_asm.c_str(), out);
+	fclose(out);
 
-                    while(ch!='*'){
-                        if(ch=='\n'){line++;char_count=0;}
-                        ch=fgetc(fpin);
-                    }
-                    ch=fgetc(fpin);
-                    if(ch=='/'){break;}
-                    else if(feof(fpin)){break;};//空停止
-
-                    
-                    }while(1);
-                    
-                }
-                break;
-            }
-        case '>':
-        case '<':
-        case '=':
-        case '!':
-            {
-                t.line = line;
-                t.ch = char_count;
-                t.source = ch;
-                t.type = OPERATE;
-                result.insert(pair<int,Token>(++counter,t));
-                arr += ch;
-                //cout<<arr<<TABLE<<OPERATE<<endl;
-                break;
-            }
-        case ';':
-            {
-                t.line = line;
-                t.ch = char_count;
-                t.source = ch;
-                t.type = ";";
-                result.insert(pair<int,Token>(++counter,t));
-                //cout<<ch<<TABLE<<";"<<endl;
-                break;
-            }
-        case ',':
-        case '(':
-        case ')':
-            {
-                //t = {line,char_count,ch,SEPARATE};
-                t.line = line;
-                t.ch = char_count;
-                t.source = ch;
-                t.type = SEPARATE;
-                result.insert(pair<int,Token>(++counter,t));
-                //cout<<ch<<TABLE<<SEPARATE<<endl;
-                break;
-            }
-        case '[':
-        case ']':
-        case '{':
-        case '}':
-            {
-                //t = {line,char_count,ch,SEPARATE};
-                t.line = line;
-                t.ch = char_count;
-                t.source = ch;
-                t.type = SEPARATE;
-                result.insert(pair<int,Token>(++counter,t));
-
-                //cout<<ch<<TABLE<<SEPARATE<<endl;
-                break;
-            }
-        
-        default :
-            {
-            if(ch!=' ')
-                cout<<"("<<ch<<")"<<":无法识别的字符！"<<endl;
-            }
-        }
-        //if(!arr.empty()){result.insert(pair<int,Token>(counter++,arr))}
-       
-    }while(1);
-    //cout <<counter<<endl;
-    return result;
 }
 
 /**----------主函数----------**/
-int main()
+int main(int argc,char *argv[])
 {
     char inFile[40];
     string analysed; 
     FILE *fpin;
     //cout<<"File name:";
     //cin>>inFile;
-    fpin=fopen("src.txt","r");
-    cout<<"1.词法分析"<<endl;
+    //fpin=fopen("src.cot","r");
+	fpin=fopen(argv[1],"r");
+    //cout<<"1.词法分析"<<endl;
+	
 
+	/*
     map<int,Token> tokens;
     tokens = ana(fpin);
     
     cout <<"Tokens----------------"<<endl;
     showTokens(tokens);
+	*/
+	general();
+	system("gcc test.s -o tester");
+	system("rm test.s");
+
     return 0;
 }
 
