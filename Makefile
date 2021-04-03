@@ -42,6 +42,6 @@ $(FILENAME): $(OBJS)
 #	$(CC) -o $(s_main)/util.cpp $(HEADS) -o util.o
 
 clean:
-	rm $(FILENAME) -rf
+	rm $(FILENAME) tester -rf
 
 

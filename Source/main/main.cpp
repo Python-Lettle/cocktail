@@ -22,49 +22,15 @@ void showTokens(map<int,Token> tokens);
 
 /**----------词法分析器----------**/
 map<int,Token> ana(FILE * fpin);
+/**----------语法分析器----------**/
+
 
 /**----------代码生成器----------**/
-string asm_print()
-{
-	string print_asm = 
-		"\t.globl print\n"
-		"print:\n"
-    	"\tstp x29, x30, [sp, #-16]!\n"
-		"\tmov x29, sp\n"
-		"\tbl  puts\n"
-		"\tldp x29, x30, [sp], #16\n"
-		"\tret";
-	return	print_asm;
-}
-string asm_string()
-{
-	string string_asm =
-		".helstr:\n"
-		"\t.asciz\t\"hello\"\n"
-		"\t.size\t.helstr, 6";
-	return string_asm;
-}
-string asm_main()
-{
-	string main_asm =
-	"main:\n"
-    "\tstp x29, x30, [sp, #-16]!\n"
-    "\tadrp    x0, .helstr\n"
-    "\tadd x0, x0, :lo12:.helstr\n"
-	"\tmov x29, sp\n"
-    "\tbl  puts\n"
-	"\tmov w0, wzr\n"
-	"\tldp x29, x30, [sp], #16\n"
-	"\tret\n";
-	return main_asm;
-}
-string asm_head()
-{
-	string head_asm =
-		"\t.globl main\n";
-	return head_asm;
-}
-void general()
+string asm_print();
+string asm_string(string str);
+string asm_main();
+string asm_head();
+void generate(map<int,Token> m)
 {
 		
 	string prt_asm =
@@ -79,7 +45,15 @@ void general()
 
 	out_asm += asm_head();
 	out_asm += asm_main();
-	out_asm += asm_string();
+	map<int,Token>::iterator it;
+	it = m.begin();
+	while(it!=m.end()){
+		if(it->second.type==STRING){
+			out_asm += asm_string(it->second.source);
+		}
+		it++;
+	}
+	//cout << "Finish"<<endl;
 
 	fprintf(out,"%s",out_asm.c_str());
 	// fputs(print_asm.c_str(), out);
@@ -96,22 +70,38 @@ int main(int argc,char *argv[])
     //cout<<"File name:";
     //cin>>inFile;
     //fpin=fopen("src.cot","r");
-	fpin=fopen(argv[1],"r");
+	
+
+	//参数分析
+	//fpin=fopen(argv[1],"r");
+	int ASM_SOURCE_MODE = 0;
+	for(int i=1;i<argc;i++){
+		if(!strcmp(argv[i],"-S")){
+			ASM_SOURCE_MODE = 1;
+		}else{
+			fpin=fopen(argv[i],"r");
+			break;
+		}
+	}
+
     //cout<<"1.词法分析"<<endl;
 	
 
-	/*
+	
     map<int,Token> tokens;
     tokens = ana(fpin);
     
+	/*
     cout <<"Tokens----------------"<<endl;
     showTokens(tokens);
 	*/
-	general();
-	system("gcc test.s -o tester");
-	system("rm test.s");
+	generate(tokens);
+	
+	if(ASM_SOURCE_MODE == 0){
+		system("gcc test.s -o tester");
+		system("rm test.s");
+	}
 
     return 0;
 }
-
 

@@ -15,6 +15,7 @@ debug/
 *.air
 *.ipa
 *.apk
+test.s
 cocktail
 tester
 # Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
