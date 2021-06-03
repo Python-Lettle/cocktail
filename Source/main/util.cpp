@@ -53,3 +53,11 @@ bool IsDigit(char ch){
     return false;
 }
 
+/**返回每个字的值**/
+template <class T>
+int value(T *a,int n,T str){
+	for(int i=0;i<n;i++){
+		if(a[i]==str) return i+1;
+	}
+	return -1;
+}

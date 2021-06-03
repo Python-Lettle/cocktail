@@ -3,7 +3,7 @@
 #include "util.h"
 #include "globals.h"
 using namespace std;
-map<int,Token> ana(FILE * fpin)
+map<int,Token> scan(FILE * fpin)
 {
     const string TABLE = "\t\t\t";
     Token t = {0,0,"a","n"};
@@ -68,13 +68,13 @@ map<int,Token> ana(FILE * fpin)
         switch(ch){
         case '"':
             {
-                arr += ch;//将双引号加入
+                //arr += ch;//将双引号加入
                 ch=fgetc(fpin);//跳到下一字符
                 t.ch = char_count;
                 char_count++;
                 while(ch!='"'){
                     arr+=ch;ch=fgetc(fpin);char_count++;}
-                arr += ch;
+                //arr += ch;//加入右引号
                 t.line = line;
                 t.source = arr;
                 t.type = STRING;

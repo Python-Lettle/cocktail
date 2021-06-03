@@ -1,15 +1,10 @@
-package test;
-
 /*
     多行注释不能被读取
-    这里是演示
-*/
-int main(int a)
-{
-    /*
+    这里是演示*
+*/int main(int a)
+{/*
        在这也读不到
-    */
-    string content = "hello"; //这里是单行注释测试
+    */string content = "hello"; //这里是单行注释测试
     print(content);
     return 0;
 }
