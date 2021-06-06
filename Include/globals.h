@@ -44,12 +44,12 @@ struct Token
 {
 	int line;	//代码行号
 	int ch;		//词位置
-	string type;	//
+	string type;
 	string source;
 };
 
-const char HELP_MSG[] = "参数列表:\n \
-	1. -o filename\t设置输出文件名(下一个参数一定是文件名)\n \
-	2. -S filename\t设置为输出汇编文件\n \
-	3. --tokens\t只分析token\n \
-	4. --help / -h\t显示帮助\n";
+const char HELP_MSG[] = "Parameters:\n \
+	1. -o filename\tSet your output filename(The next arg must be filename)\n \
+	2. -S filename\tOutput as asm file\n \
+	3. --tokens\tToken only\n \
+	4. --help / -h\tShow help\n";

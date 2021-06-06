@@ -170,7 +170,7 @@ map<int,Token> scan(FILE * fpin)
         default :
             {
             if(ch!=' ')
-                cout<<"("<<ch<<")"<<":无法识别的字符！"<<endl;
+                cout<<"("<<ch<<")"<<":unknown word!!!"<<endl;
             }
         }
         //if(!arr.empty()){result.insert(pair<int,Token>(counter++,arr))}

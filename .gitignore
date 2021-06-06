@@ -6,6 +6,7 @@ bin-release/
 
 # Other files and folders
 .settings/
+.vscode/
 test/
 Object/
 debug/
@@ -17,6 +18,7 @@ debug/
 *.apk
 test.s
 cocktail
+cocktail.exe
 tester
 Source/util
 # Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`

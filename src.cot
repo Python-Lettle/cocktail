@@ -4,7 +4,9 @@
 */int main(int a)
 {/*
        在这也读不到
-    */string content = "hello"; //这里是单行注释测试
+    */string content = "Hello,cocktail!"; //这里是单行注释测试
+    string hello = "nihao,hello";
     print(content);
+    print("Here is print.");
     return 0;
 }

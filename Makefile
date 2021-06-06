@@ -5,7 +5,7 @@
 CC = g++
 FILENAME = cocktail
 CFLAGS = -Wall -std=gnu99
-MODE = aarch64
+MODE = i386
 
 s = /Source
 s_main = $(s)/main

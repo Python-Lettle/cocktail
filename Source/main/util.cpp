@@ -61,3 +61,9 @@ int value(T *a,int n,T str){
 	}
 	return -1;
 }
+
+char * int2char(int a)
+{
+    char * res;
+
+}

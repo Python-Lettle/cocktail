@@ -15,7 +15,7 @@ map<int,Token> scan(FILE * fpin);
 void showTokens(map<int,Token> tokens);
 
 /**----------语法分析器----------**/
-
+void syntax(map<int,Token> tokens,bool prt);
 // 获取语句流
 
 
@@ -66,41 +66,44 @@ void generate(map<int,Token> m)
 {
 		
 	string prt_asm =
-		"\t.global print\n"
-		"print:\n"
-		"\tb\tputs";
+        ".globl print\n"
+	    "\t.def	print;	.scl	2;	.type	32;	.endef\n"
+        "print:\n"
+	    "\tpushl	%ebp\n"
+    	"\tmovl	%esp, %ebp\n"
+	    "\tcall	_printf\n"
+	    "\t.def	___main;	.scl	2;	.type	32;	.endef;\n";
 
 	string out_asm = 
 		"\t.text\n";
 	FILE *out;
 	out = fopen("test.s","w+");
 
+    /*
 	out_asm += asm_head();
 	out_asm += asm_main();
-	/*
-	out_asm += "\tstp x29, x30, [sp, #-16]!\n"
-    "\tadrp    x0, .content\n"
-    "\tadd x0, x0, :lo12:.content\n"
-	"\tmov x29, sp\n"
-    "\tbl  puts\n"
-	"\tmov w0, wzr\n"
-	"\tldp x29, x30, [sp], #16\n"
-	"\tret\n";
-	*/
+    */
+
 	map<int,Token>::iterator it;
 	it = m.begin();
+    int string_count = 0;
+    char * string_name;
+    /*
 	while(it!=m.end()){
 		if(it->second.type==STRING){
-			out_asm += asm_string("content",it->second.source);
+            string_count++;
+            string_name = "LC" + string_count + "0";
+			out_asm += asm_string(string_name,it->second.source);
 		}else if(it->second.type==VAR){
-			if(it->second.source=="print"){
-				/*
+			if(it->second.source=="print"){     
 				out_asm += asm_print(".content");
-				*/
 			}
 		}
 		it++;
 	}
+    */
+    //out_asm += asm_main_end();
+
 	fprintf(out,"%s",out_asm.c_str());
 	// fputs(print_asm.c_str(), out);
 	fclose(out);
@@ -122,9 +125,10 @@ int main(int argc,char *argv[])
 	for(int i=1;i<argc;i++){
 		if(!strcmp(argv[i],"-S")){
 			ASM_SOURCE_MODE = 1;
-		}else if(!strcmp(argv[i],"--tokens")){
-			cout<<"词法分析"<<endl;
+		}else if(!strcmp(argv[i],"--tokens")){	
 			SHOW_TOKENS = 1;
+        }else if(!strcmp(argv[i],"--syntax")){ 
+            SHOW_TOKENS = 2;
 		}else if(!strcmp(argv[i],"-o")){
 			i++;
 			outname = argv[i];
@@ -134,15 +138,20 @@ int main(int argc,char *argv[])
 		}else{
 			fpin=fopen(argv[i],"r");
 			if(!fpin)
-				cout <<"请检查参数"<<endl;
+				cout <<"Please check your parameter."<<endl;
 		}
 	}
 	
 	/** 词法分析 **/
     map<int,Token> tokens;
     tokens = scan(fpin);
-	if(SHOW_TOKENS == 1){
+	if(SHOW_TOKENS != 0){
+        cout<<"Token scanner:"<<endl;
 		showTokens(tokens);
+        if(SHOW_TOKENS == 2){
+            cout<<"Syntax result:"<<endl;
+            syntax(tokens,true);
+        }
 		return 1;
 	}
 

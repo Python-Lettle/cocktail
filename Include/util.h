@@ -5,14 +5,14 @@ using namespace std;
 #define keywordSum 15
 
 //常量
-const string SEPARATE = "分隔符";
-const string OPERATE = "运算符";
-const string VAR = "变量名";
-const string KEY = "关键字";
-const string NUM = "数字";
-const string BOOLEAN = "布尔值";
-const string STRING = "字符串";
-const string CONST = "常量";
+const string SEPARATE = "SEP";
+const string OPERATE = "OPR";
+const string VAR = "VAR";
+const string KEY = "KEY";
+const string NUM = "NUM";
+const string BOOLEAN = "BOOL";
+const string STRING = "STR";
+const string CONST = "CONST";
 
 //关键字
 const string KEYWORD[keywordSum]={
@@ -43,3 +43,4 @@ bool IsUpLetter(char ch);
 bool IsLowLetter(char ch);
 bool IsDigit(char ch);
 
+char * int2char(int a);
