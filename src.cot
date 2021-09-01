@@ -1,12 +1,6 @@
-/*
-    多行注释不能被读取
-    这里是演示*
-*/int main(int a)
-{/*
-       在这也读不到
-    */string content = "Hello,cocktail!"; //这里是单行注释测试
-    string hello = "nihao,hello";
-    print(content);
-    print("Here is print.");
-    return 0;
-}
+var div = function(a, b) {
+    a / b;
+};
+
+var c = div(4, 2);
+print(c);

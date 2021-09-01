@@ -1,51 +1,41 @@
 # Author: Lettle
 
-
 # 变量
-CC = g++
+CC = gcc
 FILENAME = cocktail
-CFLAGS = -Wall -std=gnu99
-MODE = i386
+CFlags = -g -Wall -Wno-strict-aliasing -std=gnu11 -fPIC
 
-s = /Source
-s_main = $(s)/main
-s_asm = $(s)/$(MODE)
+s  = Source
+t  = target
 
-i = /Include
-HEADS = util.h global.h
+COT_Kernel = $(t)/cot_debug.o $(t)/cot_lexer.o $(t)/cot_stack.o $(t)/cot_util.o $(t)/main.o
 
-OBJ_SRC = /Object
+.PHONY: nop all clean
 
-SRCS = $(s_main)/main.cpp \
-       $(s_main)/util.cpp \
-       $(s_main)/token.cpp\
-	   $(s_asm)/asm.cpp
-INC = -I .$(i)
-OBJS = $(SRCS:.c=.o)
+nop:
+	@echo "all      编译cocktail"
+	@echo "clean    清理obj文件"
 
-.PHONY: all clean checkdir killres
-
-all:
-	$(CC) -o $(FILENAME) .$(s_asm)/*.cpp .$(s_main)/*.cpp $(INC)
-
-checkdir:
-	mkdir -p $(OBJ_SRC) $(s) $(s_main) $(i)
-
-
-$(FILENAME): $(OBJS)
-	#	@echo TARGET:$@
-	#	@echo OBJECTS:$^
-	$(CC) -o $@ $^
-%.o: %.c
-	$(CC) $(CFLAGS) $(INC) -o $@ -c $<
-
-#cocktail.o: $(s_main)/main.cpp
-#	$(CC) -c $(s_main)/main.cpp $(HEADS) -o cocktail.o
-#util.o: util.cpp
-#	$(CC) -o $(s_main)/util.cpp $(HEADS) -o util.o
+all: $(COT_Kernel)
+	$(CC) -o $(FILENAME) $(COT_Kernel)
 
 clean:
-	rm $(FILENAME) tester a.out -rf
+	rm -rf $(t)/*
+	rm -rf $(FILENAME)
 
-killres:
-	rm tester a.out -rf
+$(t)/cot_debug.o: $(s)/cot_debug.c
+	$(CC) $(CFlags) -c -o $@ $<
+
+$(t)/cot_lexer.o: $(s)/cot_lexer.c
+	$(CC) $(CFlags) -c -o $@ $<
+
+$(t)/cot_stack.o: $(s)/cot_stack.c
+	$(CC) $(CFlags) -c -o $@ $<
+
+$(t)/cot_util.o: $(s)/cot_util.c
+	$(CC) $(CFlags) -c -o $@ $<
+
+$(t)/main.o: $(s)/main.c
+	$(CC) $(CFlags) -c -o $@ $<
+
+
