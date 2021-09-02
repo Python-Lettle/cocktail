@@ -27,6 +27,7 @@ void cot_token_scan(FILE * fpin);
 
 void cot_token_stream_init ();
 void cot_token_stream_add(cot_token token);
+cot_token cot_token_stream_get(int index);
 
 void cot_token_show(cot_token token);
 

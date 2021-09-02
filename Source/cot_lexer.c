@@ -34,6 +34,14 @@ void cot_token_stream_add(cot_token token) {
     cot_ts.tokens[cot_ts.count++] = token;
 }
 
+cot_token cot_token_stream_get (int index) {
+    if ( index>=0 && index<cot_ts.count) {
+        return cot_ts.tokens[index];
+    }
+    printf("Wrone index to get token from stream.\n");
+    exit(1);
+}
+
 // 扫描并获取token流
 void cot_token_scan(FILE * fpin)
 {
@@ -270,40 +278,39 @@ void cot_token_scan(FILE * fpin)
         // 未识别出类型, 报错
         else
             printf("Wrong token in line %d: %s\n", line, str);
-        
-        cot_token_stream_add(token);
 
+        cot_token_stream_add(token);
     }
+    cot_token_show(cot_token_stream_get(0));
+    printf("Token value: %s\n", cot_token_stream_get(0).value.string_value);
 }
 
 void cot_token_show (cot_token token)
 {
     switch (token.value.type) {
         case STRING_LITERAL:
-            printf("Token(%d:%d):%d->%s\n",token.line,token.ch,token.value.int_value,"STRING_LITERAL");
+            printf("Token(%d:%d):  %d    %s\n",token.line,token.ch,token.value.int_value,"STRING_LITERAL");
             break;
         case INTEGER_LITERAL:
-            printf("Token(%d:%d):%d->%s\n",token.line,token.ch,token.value.int_value,"INTEGER_LITERAL");
+            printf("Token(%d:%d):  %d    %s\n",token.line,token.ch,token.value.int_value,"INTEGER_LITERAL");
             break;
         case FLOAT_LITERAL:
-            printf("Token(%d:%d):%f->%s\n",token.line,token.ch,token.value.float_value,"FLOAT_LITERAL");
+            printf("Token(%d:%d):  %f    %s\n",token.line,token.ch,token.value.float_value,"FLOAT_LITERAL");
             break;
         case STRING:
         case INT:
         case DOUBLE:
         case IDENTIFIER:
-            printf("Token(%d:%d):%s->%s\n",token.line,token.ch,token.value.string_value,"IDENTIFIER");
+            printf("Token(%d:%d):  %s    %s\n",token.line,token.ch,token.value.string_value,"IDENTIFIER");
             break;
         case FUNCTION:
-            printf("Token(%d:%d):%s->%s\n",token.line,token.ch,token.value.string_value,"FUNCTION");
+            printf("Token(%d:%d):  %s    %s\n",token.line,token.ch,token.value.string_value,"FUNCTION");
             break;
         case RETURN:
-            printf("Token(%d:%d):%s->%s\n",token.line,token.ch,token.value.string_value,"RETURN");
+            printf("Token(%d:%d):  %s    %s\n",token.line,token.ch,token.value.string_value,"RETURN");
             break;
         default:
-            printf("Token(%d:%d):%s->%d\n",token.line,token.ch,token.value.string_value,token.value.type);
-
-
+            printf("Token(%d:%d):  %s    %d\n",token.line,token.ch,token.value.string_value,token.value.type);
     }
 
 }
