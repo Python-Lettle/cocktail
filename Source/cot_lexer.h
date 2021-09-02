@@ -13,18 +13,21 @@
 #include "cot_util.h"
 #include "cot_debug.h"
 
-struct cot_token_stream{
+typedef struct cot_token_stream_tag{
     // 容量
     int capacity;
     // token数量
     int count;
     // 储存的token
     cot_token *tokens;
-};
+}cot_token_stream;
 
 
 void cot_token_scan(FILE * fpin);
+
+void cot_token_stream_init ();
 void cot_token_stream_add(cot_token token);
+
 void cot_token_show(cot_token token);
 
 #endif //COCKTAIL_COT_LEXER_H

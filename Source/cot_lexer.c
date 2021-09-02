@@ -8,18 +8,30 @@
 #include "cot_lexer.h"
 
 int one_token_size = sizeof (cot_token);
-struct cot_token_stream cot_ts = {1, 0};
+cot_token_stream cot_ts;
+
+void cot_token_stream_init () {
+    cot_ts.count = 0;
+    cot_ts.capacity = 5 * sizeof(cot_token);
+    cot_ts.tokens = (cot_token*) malloc (cot_ts.capacity);
+    if (!cot_ts.tokens){
+        printf("Failed to init token stream!\n");
+        exit(1);
+    }
+}
 
 void cot_token_stream_add(cot_token token) {
     if (__DEBUG_MODE__){
-        printf("Token流加入一个新的Token");
+        printf("Token流加入一个新的");
+        cot_token_show(token);
     }
 
-    if (++cot_ts.count > cot_ts.capacity) {
+    if ( cot_ts.count == (cot_ts.capacity / sizeof(cot_token)) ) {
         // 容量小了
-        cot_ts.tokens = (cot_token*) realloc (cot_ts.tokens, cot_ts.capacity * sizeof(cot_token));
+        cot_ts.capacity *= 2;
+        cot_ts.tokens = (cot_token*) realloc (cot_ts.tokens, cot_ts.capacity);
     }
-    cot_ts.tokens[cot_ts.count] = token;
+    cot_ts.tokens[cot_ts.count++] = token;
 }
 
 // 扫描并获取token流
@@ -37,6 +49,7 @@ void cot_token_scan(FILE * fpin)
     int str_len = 0;
     // int counter = 0;    // 记录token数
     int noneed = 0; // 下一循环是否需要获取
+    cot_token_stream_init(cot_ts);
 
     /**
      * Token属性
@@ -257,8 +270,8 @@ void cot_token_scan(FILE * fpin)
         // 未识别出类型, 报错
         else
             printf("Wrong token in line %d: %s\n", line, str);
-
-        cot_token_show(token);
+        
+        cot_token_stream_add(token);
 
     }
 }
