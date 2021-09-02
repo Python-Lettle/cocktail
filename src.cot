@@ -1,6 +1,6 @@
-var div = function(a, b) {
-    a / b;
+function add (a,b){
+    return a + b;
 };
 
-var c = div(4, 2);
+int c = add(4, 2);
 print(c);

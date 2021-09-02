@@ -25,6 +25,6 @@ struct cot_token_stream{
 
 void cot_token_scan(FILE * fpin);
 void cot_token_stream_add(cot_token token);
-
+void cot_token_show(cot_token token);
 
 #endif //COCKTAIL_COT_LEXER_H

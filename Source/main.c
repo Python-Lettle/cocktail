@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
             // 打开文件失败
             if (!fp) {
                 printf("Please check your paramer.\n");
-                usage(1);
+                usage(1);   // 用信号1表示异常退出
             }
 
             // 打开文件成功

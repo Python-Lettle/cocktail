@@ -6,39 +6,37 @@
  */
 
 #include "cot_util.h"
-#include <string.h>
 
 // 关键字
 const char * KEYWORD_LIST[keywordSum]={
-        "import",
+        "import","function",
         "if","else","void","return",
         "while","for","do",
         "int","string","double"};
 
 // 数据类型
-const char * VARTYPE_LIST[5]={
+const char * VARTYPE_LIST[vartypeSum]={
         "int","string","double","void"
 };
 
 // 分隔符
-const char SEPARATER_LIST[8]={';',',','{','}','[',']','(',')'};
+const char SEPARATER_LIST[separaterSum]={';',',','{','}','[',']','(',')'};
 // 运算符
-const char OPERATOR_LIST[8]={'+','-','*','/','>','<','=','!'};
+const char OPERATOR_LIST[opratorSum]={'+','-','*','/','>','<','=','!'};
 // 过滤符
-const char FILTER_LIST[4]={' ','\t','\r','\n'};
+const char FILTER_LIST[filterSum]={' ','\t','\r','\n'};
 
 /** 判断是否为关键字 **/
-int IsKeyword(char * word){
-    for(int i=0;i<15;i++){
-        if(strcmp(KEYWORD_LIST[i],word)){
+int IsKeyword(char *word){
+    for(int i=0;i<keywordSum;i++){
+        if(!strcmp(KEYWORD_LIST[i],word))
             return 1;
-        }
     }
     return 0;
 }
 /** 判断是否为分隔符 **/
 int IsSeparater(char ch){
-    for(int i=0;i<8;i++){
+    for(int i=0;i<separaterSum;i++){
         if(SEPARATER_LIST[i]==ch){
             return 1;
         }
@@ -48,7 +46,7 @@ int IsSeparater(char ch){
 
 /** 判断是否为运算符 **/
 int IsOperator(char ch){
-    for(int i=0;i<8;i++){
+    for(int i=0;i<opratorSum;i++){
         if(OPERATOR_LIST[i]==ch){
             return 1;
         }
@@ -57,7 +55,7 @@ int IsOperator(char ch){
 }
 /** 判断是否为过滤符 **/
 int IsFilter(char ch){
-    for(int i=0;i<4;i++){
+    for(int i=0;i<filterSum;i++){
         if(FILTER_LIST[i]==ch){
             return 1;
         }
