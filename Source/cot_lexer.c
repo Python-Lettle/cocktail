@@ -8,7 +8,6 @@
 #include "cot_lexer.h"
 
 int one_token_size = sizeof (cot_token);
-cot_token_stream cot_ts;
 
 void cot_token_stream_init () {
     cot_ts.count = 0;
@@ -20,23 +19,21 @@ void cot_token_stream_init () {
     }
 }
 
-void cot_token_stream_add(cot_token token) {
-    if (__DEBUG_MODE__){
+void cot_token_stream_add(cot_token token, int showToken) {
+    if (__DEBUG_MODE__ && (__TOKEN_ANA_PROCESS__ || showToken)){
         printf("Token流加入一个新的");
         cot_token_show(token);
     }
 
-    if ( cot_ts.count == (cot_ts.capacity / sizeof(cot_token)) ) {
+    if ( cot_ts.count == (int)(cot_ts.capacity / sizeof(cot_token)) ) {
         // 容量小了
         cot_ts.capacity *= 2;
         cot_ts.tokens = (cot_token*) realloc (cot_ts.tokens, cot_ts.capacity);
-        if (__DEBUG_MODE__) {
+        if (__DEBUG_MODE__ && __TOKEN_ANA_PROCESS__ && showToken){
             printf("Token_stream.capacity doubled, now: %d\n", cot_ts.capacity);
         }
     }
-    cot_token temp;
-    memcpy(&temp,&token,sizeof (token));
-    cot_ts.tokens[cot_ts.count++] = temp;
+    cot_ts.tokens[cot_ts.count++] = token;
 }
 
 cot_token cot_token_stream_get (int index) {
@@ -48,7 +45,7 @@ cot_token cot_token_stream_get (int index) {
 }
 
 // 扫描并获取token流
-void cot_token_scan(FILE * fpin)
+void cot_token_scan(FILE * fpin, int showToken)
 {
     if(__DEBUG_MODE__){
         printf("Scanner start!!!\n");
@@ -62,12 +59,12 @@ void cot_token_scan(FILE * fpin)
     int str_len = 0;
     // int counter = 0;    // 记录token数
     int noneed = 0; // 下一循环是否需要获取
-    cot_token_stream_init(cot_ts);
+    cot_token_stream_init();
 
     /**
      * Token属性
      */
-    cot_token token = {};
+    cot_token token = { 0 };
     int char_count = 0; // 当前字符位置
     int line = 1;       // 当前行号
 
@@ -81,19 +78,14 @@ void cot_token_scan(FILE * fpin)
         for(int i=0;i<str_len;i++)
             str[i] = '\0';
         str_len = 0;
-        token.value.type = 0; token.line = 0;token.ch=0;
 
         //判断过滤符
         if(ch=='\n'){
-            if(__DEBUG_MODE__ && __TOKEN_ANA_PROCESS__)
-                printf("From line %d:%d find \\n\n", line, char_count);
             line++;char_count=0;
             continue;} //行数增加
 
         // 过滤符号跳过
         if(IsFilter(ch)) {
-            if(__DEBUG_MODE__ && __TOKEN_ANA_PROCESS__)
-                printf("From line %d:%d find filter\n", line, char_count);
             continue;}
 
         // 判断关键字或变量名
@@ -108,7 +100,8 @@ void cot_token_scan(FILE * fpin)
                 // 指针跳转下一个字符
                 ch = fgetc(fpin); char_count++;
             } noneed = 1;
-            token.value.string_value = str;
+//            token.value.string_value = str;
+            strcpy(token.value.string_value, str);
             // 判断是否为关键字
             if(IsKeyword(str)) {
                 if (strcmp(str,"import") == 0)
@@ -167,7 +160,7 @@ void cot_token_scan(FILE * fpin)
                 // 指针跳转下一个字符
                 ch = fgetc(fpin); char_count++;
             } noneed = 1;
-            token.value.string_value = str;
+            strcpy(token.value.string_value, str);
         }
 
         // 判断是否为数字常量
@@ -276,19 +269,14 @@ void cot_token_scan(FILE * fpin)
                 }
             }
             noneed = 1;
-            token.value.string_value = str;
+            strcpy(token.value.string_value, str);
         }
 
         // 未识别出类型, 报错
         else
             printf("Wrong token in line %d: %s\n", line, str);
 
-        cot_token_stream_add(token);
-    }
-    // TODO: 这里的token.value消失了
-    printf("-----------------------------------------------\n");
-    for (int i=0; i < cot_ts.count; i++){
-        cot_token_show(cot_token_stream_get(i));
+        cot_token_stream_add(token, showToken);
     }
 }
 
@@ -296,28 +284,28 @@ void cot_token_show (cot_token token)
 {
     switch (token.value.type) {
         case STRING_LITERAL:
-            printf("Token(%d:%d):  %s    %s\n",token.line,token.ch,token.value.string_value,"STRING_LITERAL");
+            printf("Token(%d:%d):\t%s\t%s\n",token.line,token.ch,token.value.string_value,"STRING_LITERAL");
             break;
         case INTEGER_LITERAL:
-            printf("Token(%d:%d):  %d    %s\n",token.line,token.ch,token.value.int_value,"INTEGER_LITERAL");
+            printf("Token(%d:%d):\t%d\t%s\n",token.line,token.ch,token.value.int_value,"INTEGER_LITERAL");
             break;
         case FLOAT_LITERAL:
-            printf("Token(%d:%d):  %f    %s\n",token.line,token.ch,token.value.float_value,"FLOAT_LITERAL");
+            printf("Token(%d:%d):\t%f\t%s\n",token.line,token.ch,token.value.float_value,"FLOAT_LITERAL");
             break;
         case STRING:
         case INT:
         case DOUBLE:
         case IDENTIFIER:
-            printf("Token(%d:%d):  %s    %s\n",token.line,token.ch,token.value.string_value,"IDENTIFIER");
+            printf("Token(%d:%d):\t%s\t%s\n",token.line,token.ch,token.value.string_value,"IDENTIFIER");
             break;
         case FUNCTION:
-            printf("Token(%d:%d):  %s    %s\n",token.line,token.ch,token.value.string_value,"FUNCTION");
+            printf("Token(%d:%d):\t%s\t%s\n",token.line,token.ch,token.value.string_value,"FUNCTION");
             break;
         case RETURN:
-            printf("Token(%d:%d):  %s    %s\n",token.line,token.ch,token.value.string_value,"RETURN");
+            printf("Token(%d:%d):\t%s\t%s\n",token.line,token.ch,token.value.string_value,"RETURN");
             break;
         default:
-            printf("Token(%d:%d):  %s    %d\n",token.line,token.ch,token.value.string_value,token.value.type);
+            printf("Token(%d:%d):\t%s\t%d\n",token.line,token.ch,token.value.string_value,token.value.type);
     }
 
 }

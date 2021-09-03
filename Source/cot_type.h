@@ -9,13 +9,16 @@
 
 #include "cot_stack.h"
 
+// 一个token最长多少字节
+#define token_length_maximum 16
+
 typedef struct {
     COT_STACK_HEADER;
     int type;
     union {
+        char string_value[token_length_maximum];
         int int_value;
         int boolean_value;
-        char * string_value;
         double float_value;
     };
 } cot_value;

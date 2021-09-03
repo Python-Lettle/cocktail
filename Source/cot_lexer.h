@@ -22,11 +22,13 @@ typedef struct cot_token_stream_tag{
     cot_token *tokens;
 }cot_token_stream;
 
+// 全局token流
+cot_token_stream cot_ts;
 
-void cot_token_scan(FILE * fpin);
+void cot_token_scan(FILE * fpin, int showToken);
 
 void cot_token_stream_init ();
-void cot_token_stream_add(cot_token token);
+void cot_token_stream_add(cot_token token, int showToken);
 cot_token cot_token_stream_get(int index);
 
 void cot_token_show(cot_token token);

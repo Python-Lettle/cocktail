@@ -7,10 +7,11 @@
 
 
 #include <string.h>
-#include "cot_lexer.h"
 #include "cot_debug.h"
+#include "cot_lexer.h"
 
-
+// 程序传入参数是否显示token
+int ARG_TOKEN = 0;
 FILE *fp;
 
 // 编译器帮助信息
@@ -47,9 +48,13 @@ int main(int argc, char *argv[]) {
         usage(1);
     }
     for (int i=1;i < argc;i++){
-        if(!strcmp(argv[i],"-h") || !strcmp(argv[i], "--help"))
+        if(!strcmp(argv[i],"-h") || !strcmp(argv[i], "--help")){
             usage(0);
-        else {
+        }else if(!strcmp(argv[i],"--token")){
+            // 是否输出token分析过程
+            ARG_TOKEN = 1;
+        } else {
+
             fp = fopen(argv[i], "r");   // 用文件名尝试打开
 
             // 打开文件失败
@@ -57,11 +62,11 @@ int main(int argc, char *argv[]) {
                 printf("Please check your paramer.\n");
                 usage(1);   // 用信号1表示异常退出
             }
-
-            // 打开文件成功
-            cot_token_scan(fp);
         }
     }
+
+    // 打开文件成功
+    cot_token_scan(fp, ARG_TOKEN);
 
     return 0;
 }

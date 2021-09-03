@@ -3,12 +3,12 @@
 # 变量
 CC = gcc
 FILENAME = cocktail
-CFlags = -g -Wall -Wno-strict-aliasing -std=gnu11 -fPIC
+CFlags = -g -Wall -Wno-strict-aliasing -fPIC
 
 s  = Source
 t  = target
 
-COT_Kernel = $(t)/cot_debug.o $(t)/cot_lexer.o $(t)/cot_stack.o $(t)/cot_util.o $(t)/main.o
+COT_Kernel = $(t)/cot_debug.o $(t)/cot_lexer.o $(t)/cot_stack.o $(t)/cot_util.o $(t)/cot_parser.o $(t)/main.o
 
 .PHONY: nop all clean run
 
@@ -24,7 +24,7 @@ clean:
 	rm -rf $(FILENAME)
 
 run:
-	./cocktail src.cot
+	./$(FILENAME) src.cot
 
 $(t)/cot_debug.o: $(s)/cot_debug.c
 	$(CC) $(CFlags) -c -o $@ $<
@@ -36,6 +36,9 @@ $(t)/cot_stack.o: $(s)/cot_stack.c
 	$(CC) $(CFlags) -c -o $@ $<
 
 $(t)/cot_util.o: $(s)/cot_util.c
+	$(CC) $(CFlags) -c -o $@ $<
+
+$(t)/cot_parser.o: $(s)/cot_parser.c
 	$(CC) $(CFlags) -c -o $@ $<
 
 $(t)/main.o: $(s)/main.c

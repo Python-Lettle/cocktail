@@ -11,6 +11,7 @@
 
 // 是否开启debug模式
 #define __DEBUG_MODE__ 1
+
 // 是否输出token分析过程
 #define __TOKEN_ANA_PROCESS__ 0
 
