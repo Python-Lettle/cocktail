@@ -30,8 +30,13 @@ void cot_token_stream_add(cot_token token) {
         // 容量小了
         cot_ts.capacity *= 2;
         cot_ts.tokens = (cot_token*) realloc (cot_ts.tokens, cot_ts.capacity);
+        if (__DEBUG_MODE__) {
+            printf("Token_stream.capacity doubled, now: %d\n", cot_ts.capacity);
+        }
     }
-    cot_ts.tokens[cot_ts.count++] = token;
+    cot_token temp;
+    memcpy(&temp,&token,sizeof (token));
+    cot_ts.tokens[cot_ts.count++] = temp;
 }
 
 cot_token cot_token_stream_get (int index) {
@@ -163,7 +168,6 @@ void cot_token_scan(FILE * fpin)
                 ch = fgetc(fpin); char_count++;
             } noneed = 1;
             token.value.string_value = str;
-
         }
 
         // 判断是否为数字常量
@@ -281,15 +285,18 @@ void cot_token_scan(FILE * fpin)
 
         cot_token_stream_add(token);
     }
-    cot_token_show(cot_token_stream_get(0));
-    printf("Token value: %s\n", cot_token_stream_get(0).value.string_value);
+    // TODO: 这里的token.value消失了
+    printf("-----------------------------------------------\n");
+    for (int i=0; i < cot_ts.count; i++){
+        cot_token_show(cot_token_stream_get(i));
+    }
 }
 
 void cot_token_show (cot_token token)
 {
     switch (token.value.type) {
         case STRING_LITERAL:
-            printf("Token(%d:%d):  %d    %s\n",token.line,token.ch,token.value.int_value,"STRING_LITERAL");
+            printf("Token(%d:%d):  %s    %s\n",token.line,token.ch,token.value.string_value,"STRING_LITERAL");
             break;
         case INTEGER_LITERAL:
             printf("Token(%d:%d):  %d    %s\n",token.line,token.ch,token.value.int_value,"INTEGER_LITERAL");

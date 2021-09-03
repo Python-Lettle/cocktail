@@ -10,7 +10,7 @@ t  = target
 
 COT_Kernel = $(t)/cot_debug.o $(t)/cot_lexer.o $(t)/cot_stack.o $(t)/cot_util.o $(t)/main.o
 
-.PHONY: nop all clean
+.PHONY: nop all clean run
 
 nop:
 	@echo "all      编译cocktail"
@@ -22,6 +22,9 @@ all: $(COT_Kernel)
 clean:
 	rm -rf $(t)/*
 	rm -rf $(FILENAME)
+
+run:
+	./cocktail src.cot
 
 $(t)/cot_debug.o: $(s)/cot_debug.c
 	$(CC) $(CFlags) -c -o $@ $<
