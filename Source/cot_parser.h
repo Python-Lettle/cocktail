@@ -9,8 +9,15 @@
 
 #include "cot_lexer.h"
 
+// 一个语法树节点
+typedef struct Node_tag {
+    // 一个何种类型的语法
+    int type;
+    cot_token token;
+} Node;
 
 
+// 利用token流分析语法
 void parse();
 
 #endif //COCKTAIL_COT_PARSER_H

@@ -9,6 +9,7 @@
 #include <string.h>
 #include "cot_debug.h"
 #include "cot_lexer.h"
+#include "cot_parser.h"
 
 // 程序传入参数是否显示token
 int ARG_TOKEN = 0;
@@ -67,6 +68,7 @@ int main(int argc, char *argv[]) {
 
     // 打开文件成功
     cot_token_scan(fp, ARG_TOKEN);
+    parse();
 
     return 0;
 }

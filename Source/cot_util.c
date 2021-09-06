@@ -21,8 +21,8 @@ const char * VARTYPE_LIST[vartypeSum]={
 
 // 分隔符
 const char SEPARATER_LIST[separaterSum]={';',',','{','}','[',']','(',')'};
-// 运算符
-const char OPERATOR_LIST[opratorSum]={'+','-','*','/','>','<','=','!'};
+// 操作符
+const char OPERATOR_LIST[opratorSum]={'+','-','*','/','>','<','=','!','#'};
 // 过滤符
 const char FILTER_LIST[filterSum]={' ','\t','\r','\n'};
 
@@ -44,7 +44,7 @@ int IsSeparater(char ch){
     return 0;
 }
 
-/** 判断是否为运算符 **/
+/** 判断是否为操作符 **/
 int IsOperator(char ch){
     for(int i=0;i<opratorSum;i++){
         if(OPERATOR_LIST[i]==ch){

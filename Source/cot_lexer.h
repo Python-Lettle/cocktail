@@ -18,6 +18,8 @@ typedef struct cot_token_stream_tag{
     int capacity;
     // token数量
     int count;
+    // 当前读取位置缓存
+    int now;
     // 储存的token
     cot_token *tokens;
 }cot_token_stream;
@@ -29,6 +31,7 @@ void cot_token_scan(FILE * fpin, int showToken);
 
 void cot_token_stream_init ();
 void cot_token_stream_add(cot_token token, int showToken);
+cot_token cot_token_stream_next();
 cot_token cot_token_stream_get(int index);
 
 void cot_token_show(cot_token token);

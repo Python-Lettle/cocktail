@@ -22,9 +22,9 @@
 #include "cot_type.h"
 typedef struct {
     // 代行号
-    int line;
+    short line;
     // 词位置
-    int ch;
+    short ch;
     // token的值
     cot_value value;
 } cot_token;
@@ -55,6 +55,7 @@ enum {
     SEMICOLON,      // ;
     COMMA,          // ,
     DOT,            // .
+    SHARP,          // #
     IMPORT,         // import
     FUNCTION,       // function
     RETURN,         // return
@@ -100,9 +101,13 @@ enum {
 // 分隔符总数
 #define separaterSum 8
 // 操作符总数
-#define opratorSum 8
+#define opratorSum 9
 // 过滤符总数
 #define filterSum 4
+
+#define bool short
+#define true 1
+#define false 0
 
 
 int IsKeyword(char * word);

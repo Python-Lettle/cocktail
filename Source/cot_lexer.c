@@ -9,9 +9,11 @@
 
 int one_token_size = sizeof (cot_token);
 
+// 初始化全局token流
 void cot_token_stream_init () {
     cot_ts.count = 0;
     cot_ts.capacity = 5 * sizeof(cot_token);
+    cot_ts.now = 0;
     cot_ts.tokens = (cot_token*) malloc (cot_ts.capacity);
     if (!cot_ts.tokens){
         printf("Failed to init token stream!\n");
@@ -19,6 +21,7 @@ void cot_token_stream_init () {
     }
 }
 
+// 向stream中加入token
 void cot_token_stream_add(cot_token token, int showToken) {
     if (__DEBUG_MODE__ && (__TOKEN_ANA_PROCESS__ || showToken)){
         printf("Token流加入一个新的");
@@ -36,6 +39,17 @@ void cot_token_stream_add(cot_token token, int showToken) {
     cot_ts.tokens[cot_ts.count++] = token;
 }
 
+// 利用token流特性 用于语法分析
+cot_token cot_token_stream_next() {
+    cot_token result = {};
+    if (cot_ts.now == cot_ts.count) {
+        return result;
+    }
+    result = cot_token_stream_get(cot_ts.now++);
+    return result;
+}
+
+// 根据index获取token流
 cot_token cot_token_stream_get (int index) {
     if ( index>=0 && index<cot_ts.count) {
         return cot_ts.tokens[index];
@@ -56,18 +70,19 @@ void cot_token_scan(FILE * fpin, int showToken)
      */
     char ch = ' ';      // 取一个字符
     char str[100] = "";     // 用str连接字符串
-    int str_len = 0;
+    unsigned int str_len = 0;
     // int counter = 0;    // 记录token数
-    int noneed = 0; // 下一循环是否需要获取
+    bool noneed = false; // 下一循环是否需要获取
     cot_token_stream_init();
 
     /**
      * Token属性
      */
     cot_token token = { 0 };
-    int char_count = 0; // 当前字符位置
-    int line = 1;       // 当前行号
+    short char_count = 0; // 当前字符位置
+    short line = 1;       // 当前行号
 
+    bool isFloat = false; // 是否为小数 0否 1是
 
     while (ch != EOF) {
         if (!noneed) {
@@ -93,13 +108,13 @@ void cot_token_scan(FILE * fpin, int showToken)
             token.ch = char_count;  // 记录当前token位置
             token.line = line;
             // 继续获取token
-            while (IsLetter(ch) || IsDigit(ch) || (ch=='_')) {
+            while (IsLetter(ch) || IsDigit(ch) || (ch=='_') || (ch=='.')) {
                 // 加入str缓存
                 str[str_len++] = ch;
 
                 // 指针跳转下一个字符
                 ch = fgetc(fpin); char_count++;
-            } noneed = 1;
+            } noneed = true;
 //            token.value.string_value = str;
             strcpy(token.value.string_value, str);
             // 判断是否为关键字
@@ -159,8 +174,9 @@ void cot_token_scan(FILE * fpin, int showToken)
 
                 // 指针跳转下一个字符
                 ch = fgetc(fpin); char_count++;
-            } noneed = 1;
+            }
             strcpy(token.value.string_value, str);
+            token.value.type = STRING_LITERAL;
         }
 
         // 判断是否为数字常量
@@ -170,7 +186,7 @@ void cot_token_scan(FILE * fpin, int showToken)
             token.line = line;
             str[str_len++] = ch;
 
-            while (IsDigit(ch)) {
+            while (IsDigit(ch) || ch=='.') {
                 // 指针跳转下一个字符
                 ch = fgetc(fpin); char_count++;
                 while (IsFilter(ch)){
@@ -180,13 +196,66 @@ void cot_token_scan(FILE * fpin, int showToken)
                         continue;} //行数增加
                     ch = fgetc(fpin); char_count++; // 指针跳转下一个字符
                 } // 过滤符号跳过
+                str[str_len++] = ch;
+                if (ch=='.') {
+                    if (isFloat == 0) {
+                        isFloat = 1;
+                        continue;
+                    } else {
+                        printf("Token scanner found an error: %s\n",str);
+                        exit(1);
+                    }
+                }
             } noneed = 1;
-            token.value.int_value = atoi(str);
-            token.value.type = INTEGER_LITERAL;
+
+            // 判断是小数还是整数
+            if (isFloat) {
+                // 是小数
+                token.value.float_value = atof(str);
+                token.value.type = FLOAT_LITERAL;
+                isFloat = true;
+            } else {
+                token.value.int_value = atoi(str);
+                token.value.type = INTEGER_LITERAL;
+            }
         }
 
+        // 判断 分隔符
+        else if(IsSeparater(ch)) {
+            token.ch = char_count; token.line = line;
+            switch (ch) {
+                case '(':
+                    token.value.type = LP;
+                    break;
+                case ')':
+                    token.value.type = RP;
+                    break;
+                case '{':
+                    token.value.type = LC;
+                    break;
+                case '}':
+                    token.value.type = RC;
+                    break;
+                case '[':
+                    token.value.type = LB;
+                    break;
+                case ']':
+                    token.value.type = RB;
+                    break;
+                case ';':
+                    token.value.type = SEMICOLON;
+                    break;
+                case ',':
+                    token.value.type = COMMA;
+                    break;
+                default:
+                    break;
+            }
+            token.value.string_value[0] = ch;
+            token.value.string_value[1] = '\0';
+        }
         // 判断为 操作符 或 分隔符
-        else if(IsOperator(ch) || IsSeparater(ch)) {
+        else if(IsOperator(ch)) {
             // 记录当前token位置
             token.ch = char_count;
             token.line = line;
@@ -195,81 +264,77 @@ void cot_token_scan(FILE * fpin, int showToken)
             ch = fgetc(fpin); char_count++;
             // 双符形式
             if(IsOperator(ch)) {
+                if(__DEBUG_MODE__ && showToken)
+                    printf("双符形式\n");
                 str[str_len++] = ch;
-                if (strcmp(str,"&&") != 0)
-                    token.value.type = LOGICAL_AND;
-                else if (strcmp(str,"||") != 0)
-                    token.value.type = LOGICAL_OR;
-                else if (strcmp(str,"==") != 0)
-                    token.value.type = EQ;
-                else if (strcmp(str,"!=") != 0)
-                    token.value.type = NE;
-                else if (strcmp(str,">=") != 0)
-                    token.value.type = GE;
-                else if (strcmp(str,"<=") != 0)
-                    token.value.type = LE;
+
+                // 注释判断
+                if (strcmp(str,"//") == 0) {
+                    while (ch != '\n')
+                        ch = fgetc(fpin);
+                    line++;
+                    continue;
+                }else if (strcmp(str,"/*") == 0) {
+                    bool isFinish = false, nonext = false;
+                    while(!isFinish) {
+                        if (!nonext)
+                            ch = fgetc(fpin);
+                        if (ch=='*') {
+                            ch = fgetc(fpin);
+                            if(ch=='/') isFinish = true;
+                            else if(ch=='*') nonext = true;
+                        }
+                        if (ch=='\n') line++;
+                    }
+                    continue;
+                }
+
+                else if (strcmp(str,"&&") != 0) { token.value.type = LOGICAL_AND; strcpy(token.value.string_value, str);}
+                else if (strcmp(str,"||") == 0) { token.value.type = LOGICAL_OR; strcpy(token.value.string_value, str);}
+                else if (strcmp(str,"==") == 0) { token.value.type = EQ; strcpy(token.value.string_value, str);}
+                else if (strcmp(str,"!=") == 0) { token.value.type = NE; strcpy(token.value.string_value, str);}
+                else if (strcmp(str,">=") == 0) { token.value.type = GE; strcpy(token.value.string_value, str);}
+                else if (strcmp(str,"<=") == 0) { token.value.type = LE; strcpy(token.value.string_value, str);}
+                continue;
             }
             // 单符形式
-            else {
-                switch (str[0]) {
-                    case '(':
-                        token.value.type = LP;
-                        break;
-                    case ')':
-                        token.value.type = RP;
-                        break;
-                    case '{':
-                        token.value.type = LC;
-                        break;
-                    case '}':
-                        token.value.type = RC;
-                        break;
-                    case '[':
-                        token.value.type = LB;
-                        break;
-                    case ']':
-                        token.value.type = RB;
-                        break;
-                    case '=':
-                        token.value.type = ASSIGN;
-                        break;
-                    case '!':
-                        token.value.type = INVERT;
-                        break;
-                    case '>':
-                        token.value.type = GT;
-                        break;
-                    case '<':
-                        token.value.type = LT;
-                        break;
-                    case '+':
-                        token.value.type = ADD;
-                        break;
-                    case '-':
-                        token.value.type = SUB;
-                        break;
-                    case '*':
-                        token.value.type = MUL;
-                        break;
-                    case '/':
-                        token.value.type = DIV;
-                        break;
-                    case '%':
-                        token.value.type = MOD;
-                        break;
-                    case ';':
-                        token.value.type = SEMICOLON;
-                        break;
-                    case ',':
-                        token.value.type = COMMA;
-                        break;
-                    case '.':
-                        token.value.type = DOT;
-                        break;
-                }
+            switch (str[0]) {
+                case '=':
+                    token.value.type = ASSIGN;
+                    break;
+                case '!':
+                    token.value.type = INVERT;
+                    break;
+                case '>':
+                    token.value.type = GT;
+                    break;
+                case '<':
+                    token.value.type = LT;
+                    break;
+                case '+':
+                    token.value.type = ADD;
+                    break;
+                case '-':
+                    token.value.type = SUB;
+                    break;
+                case '*':
+                    token.value.type = MUL;
+                    break;
+                case '/':
+                    token.value.type = DIV;
+                    break;
+                case '%':
+                    token.value.type = MOD;
+                    break;
+                case '.':
+                    token.value.type = DOT;
+                    break;
+                case '#':
+                    token.value.type = SHARP;
+                    break;
             }
-            noneed = 1;
-            strcpy(token.value.string_value, str);
+            noneed = true;
+            token.value.string_value[0] = str[0];
         }
 
         // 未识别出类型, 报错
@@ -305,6 +370,10 @@ void cot_token_show (cot_token token)
             printf("Token(%d:%d):\t%s\t%s\n",token.line,token.ch,token.value.string_value,"RETURN");
             break;
         default:
+            if (token.value.type < 24) {
+                printf("Token(%d:%d):\t%s\t%s\n",token.line,token.ch,token.value.string_value,"MARK");
+                break;
+            }
             printf("Token(%d:%d):\t%s\t%d\n",token.line,token.ch,token.value.string_value,token.value.type);
     }
 
