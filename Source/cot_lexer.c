@@ -24,7 +24,6 @@ void cot_token_stream_init () {
 // 向stream中加入token
 void cot_token_stream_add(cot_token token, int showToken) {
     if (__DEBUG_MODE__ && (__TOKEN_ANA_PROCESS__ || showToken)){
-        printf("Token流加入一个新的");
         cot_token_show(token);
     }
 
@@ -251,6 +250,7 @@ void cot_token_scan(FILE * fpin, int showToken)
                 default:
                     break;
             }
+            strcpy(token.value.string_value,""); // 清空一下string_value
             token.value.string_value[0] = ch;
             token.value.string_value[1] = '\0';
         }
@@ -264,8 +264,6 @@ void cot_token_scan(FILE * fpin, int showToken)
             ch = fgetc(fpin); char_count++;
             // 双符形式
             if(IsOperator(ch)) {
-                if(__DEBUG_MODE__ && showToken)
-                    printf("双符形式\n");
                 str[str_len++] = ch;
 
                 // 注释判断
@@ -334,7 +332,9 @@ void cot_token_scan(FILE * fpin, int showToken)
                     break;
             }
             noneed = true;
-            token.value.string_value[0] = str[0];
+            strcpy(token.value.string_value,""); // 清空一下string_value
+            token.value.string_value[0] = str[0];   // TODO: 这里输出时前面的string_value没有被清空
+            token.value.string_value[1] = '\0';
         }
 
         // 未识别出类型, 报错
@@ -349,32 +349,38 @@ void cot_token_show (cot_token token)
 {
     switch (token.value.type) {
         case STRING_LITERAL:
-            printf("Token(%d:%d):\t%s\t%s\n",token.line,token.ch,token.value.string_value,"STRING_LITERAL");
+            printf("(%4d:%4d):\t%20s\t%20s\n",token.line,token.ch,token.value.string_value,"STRING_LITERAL");
             break;
         case INTEGER_LITERAL:
-            printf("Token(%d:%d):\t%d\t%s\n",token.line,token.ch,token.value.int_value,"INTEGER_LITERAL");
+            printf("(%4d:%4d):\t%20d\t%20s\n",token.line,token.ch,token.value.int_value,"INTEGER_LITERAL");
             break;
         case FLOAT_LITERAL:
-            printf("Token(%d:%d):\t%f\t%s\n",token.line,token.ch,token.value.float_value,"FLOAT_LITERAL");
+            printf("(%4d:%4d):\t%20f\t%20s\n",token.line,token.ch,token.value.float_value,"FLOAT_LITERAL");
             break;
         case STRING:
         case INT:
         case DOUBLE:
         case IDENTIFIER:
-            printf("Token(%d:%d):\t%s\t%s\n",token.line,token.ch,token.value.string_value,"IDENTIFIER");
+            printf("(%4d:%4d):\t%20s\t%20s\n",token.line,token.ch,token.value.string_value,"IDENTIFIER");
             break;
         case FUNCTION:
-            printf("Token(%d:%d):\t%s\t%s\n",token.line,token.ch,token.value.string_value,"FUNCTION");
+            printf("(%4d:%4d):\t%20s\t%20s\n",token.line,token.ch,token.value.string_value,"FUNCTION");
             break;
         case RETURN:
-            printf("Token(%d:%d):\t%s\t%s\n",token.line,token.ch,token.value.string_value,"RETURN");
+            printf("(%4d:%4d):\t%20s\t%20s\n",token.line,token.ch,token.value.string_value,"RETURN");
+            break;
+        case IMPORT:
+            printf("(%4d:%4d):\t%20s\t%20s\n",token.line,token.ch,token.value.string_value,"IMPORT");
+            break;
+        case WHILE:
+            printf("(%4d:%4d):\t%20s\t%20s\n",token.line,token.ch,token.value.string_value,"WHILE");
             break;
         default:
             if (token.value.type < 24) {
-                printf("Token(%d:%d):\t%s\t%s\n",token.line,token.ch,token.value.string_value,"MARK");
+                printf("(%4d:%4d):\t%20s\t%20s\n",token.line,token.ch,token.value.string_value,"MARK");
                 break;
             }
-            printf("Token(%d:%d):\t%s\t%d\n",token.line,token.ch,token.value.string_value,token.value.type);
+            printf("(%4d:%4d):\t%20s\t%20d\n",token.line,token.ch,token.value.string_value,token.value.type);
     }
 
 }

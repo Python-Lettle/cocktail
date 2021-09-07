@@ -6,7 +6,3 @@
  */
 
 #include "cot_stack.h"
-
-int cop_stack_push(struct cot_stack *stack);
-
-int cop_stack_pop(struct cot_stack *stack);

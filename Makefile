@@ -10,7 +10,7 @@ t  = target
 
 COT_Kernel = $(t)/cot_debug.o $(t)/cot_lexer.o $(t)/cot_stack.o $(t)/cot_util.o $(t)/cot_parser.o $(t)/main.o
 
-.PHONY: nop all clean run
+.PHONY: nop all clean run debug
 
 nop:
 	@echo "all      编译cocktail"
@@ -25,6 +25,9 @@ clean:
 
 run:
 	./$(FILENAME) src.cot
+
+debug:
+	./$(FILENAME) test.cot --token
 
 $(t)/cot_debug.o: $(s)/cot_debug.c
 	$(CC) $(CFlags) -c -o $@ $<

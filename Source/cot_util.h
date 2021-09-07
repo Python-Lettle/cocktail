@@ -1,4 +1,3 @@
-
 /*
  * Created by Lettle on 2021/8/15.
  * QQ: 1071445082
@@ -10,6 +9,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "cot_type.h"
 
 #ifndef MIN
 #define MIN(a, b) (a < b ? a : b)
@@ -19,7 +19,13 @@
 #define MAX(a, b) (a > b ? a : b)
 #endif // MAX
 
-#include "cot_type.h"
+#define bool short
+#define true 1
+#define false 0
+
+/**********************************************************************
+ * cot_token
+ **********************************************************************/
 typedef struct {
     // 代行号
     short line;
@@ -79,17 +85,6 @@ enum {
     STRING_LITERAL,     // 字符串常量
 };
 
-// 一个值的类型
-enum {
-    COT_NULL_VALUE,         // 空值
-    COT_BOOLEAN_VALUE,      // 布尔值
-    COT_INT_VALUE,          // 整数
-    COT_DOUBLE_VALUE,       // 双精度小数
-    COT_STRING_VALUE,       // 字符串
-    COT_INSTANCE_VALUE,     // 实例
-    COT_FUNCTION_VALUE,     // 函数
-};
-
 /**
  * 词法解析器相关
  */
@@ -105,11 +100,6 @@ enum {
 // 过滤符总数
 #define filterSum 4
 
-#define bool short
-#define true 1
-#define false 0
-
-
 int IsKeyword(char * word);
 int IsSeparater(char ch);
 int IsOperator(char ch);
@@ -118,5 +108,36 @@ int IsUpLetter(char ch);
 int IsLowLetter(char ch);
 int IsLetter(char ch);
 int IsDigit(char ch);
+
+/**********************************************************************
+ * cot_parser
+ **********************************************************************/
+// TODO: 单目运算符没有制作：按位取反~ 自增自减 负号 类型转换 指针 取地址 长度运算符
+//       双目运算符没有制作：左移右移 按位与 按位异或^ 按位或| 求余%
+
+// 一个Expression代表的类型
+enum {
+    COT_NULL_EXP,                   // 空值
+    COT_BOOLEAN_EXP,                // 布尔值
+    COT_INT_EXP,                    // 整数
+    COT_FLOAT_EXP,                  // 双精度小数
+    COT_STRING_EXP,                 // 字符串
+    COT_INSTANCE_EXP,               // 实例
+    COT_FUNCTION_EXP,               // 函数
+    // unary expression
+    COT_NOT_EXP,                    // ! 非
+
+    // binary expression
+    COT_ASSIGN_EXP,                 // = 赋值
+    COT_ADD_EXP,                    // + 加法表达式
+    COT_SUB_EXP,                    // - 减法表达式
+    COT_MUL_EXP,                    // * 乘法表达式
+    COT_DIV_EXP,                    // / 除法表达式
+    COT_LOGICAL_AND_EXP,            // && 逻辑和
+    COT_LOGICAL_OR_EXP,             // || 逻辑与
+
+    COT_FUNCTION_CALL_EXP,          // function() 函数调用
+
+};
 
 #endif //COCKTAIL_COT_UTIL_H

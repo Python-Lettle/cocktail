@@ -7,13 +7,10 @@
 #ifndef COMPILER_COT_TYPE_H
 #define COMPILER_COT_TYPE_H
 
-#include "cot_stack.h"
-
 // 一个token最长多少字节
 #define token_length_maximum 16
 
 typedef struct {
-    COT_STACK_HEADER;
     int type;
     union {
         char string_value[token_length_maximum];

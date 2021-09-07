@@ -16,6 +16,19 @@ typedef struct Node_tag {
     cot_token token;
 } Node;
 
+typedef struct Term_tag {
+    union {
+        cot_token token;
+    };
+} Term;
+
+typedef struct Expression_tag {
+    short type;         // 表达式类型
+    Term terms[];   // 存放token
+} Expression;
+
+
+
 
 // 利用token流分析语法
 void parse();

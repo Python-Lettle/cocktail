@@ -6,14 +6,16 @@
  */
 #ifndef COMPILER_COT_STACK_H
 #define COMPILER_COT_STACK_H
+#include "cot_util.h"
 
-#define COT_STACK_HEADER int cot_stack_position;
-
-struct cot_stack {
-    COT_STACK_HEADER
-};
-
-extern int cop_stack_push(struct cot_stack *stack);
-extern int cop_stack_pop(struct cot_stack *stack);
+// 变量链表
+typedef struct {
+    /* 变量名 */
+    char *name;
+    /* 变量值 */
+    cot_value value;
+    /* 下一个变量，组成一个链表 */
+    struct Variable *next;
+} Variable;
 
 #endif //COMPILER_COT_STACK_H
