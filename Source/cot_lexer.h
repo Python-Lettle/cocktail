@@ -12,20 +12,7 @@
 #include <string.h>
 #include "cot_util.h"
 #include "cot_debug.h"
-
-typedef struct cot_token_stream_tag{
-    // 容量
-    int capacity;
-    // token数量
-    int count;
-    // 当前读取位置缓存
-    int now;
-    // 储存的token
-    cot_token *tokens;
-}cot_token_stream;
-
-// 全局token流
-cot_token_stream cot_ts;
+#include "cocktail.h"
 
 void cot_token_scan(FILE * fpin, int showToken);
 

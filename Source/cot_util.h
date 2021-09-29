@@ -115,6 +115,11 @@ int IsDigit(char ch);
 // TODO: 单目运算符没有制作：按位取反~ 自增自减 负号 类型转换 指针 取地址 长度运算符
 //       双目运算符没有制作：左移右移 按位与 按位异或^ 按位或| 求余%
 
+// 变量名最长字符数
+#define VAR_NAME_MAX_LEN 50
+// 变量体占字节大小
+#define VAR_LEN sizeof(cot_var)
+
 // 一个Expression代表的类型
 enum {
     COT_NULL_EXP,                   // 空值
@@ -139,5 +144,49 @@ enum {
     COT_FUNCTION_CALL_EXP,          // function() 函数调用
 
 };
+
+// 语法节点类型
+enum {
+    global_block = 1,
+    statement_list,
+    statement,
+    function_definition_statement,
+    if_statement,
+    for_statement,
+    expression_opt,
+    expression,
+    define_expression_list,
+    define_expression,
+    assignment_expression,
+    logical_or_expression,
+    equality_expression,
+    relational_expression,
+    additive_expression,
+    unary_expression,
+    primary_expression,
+    argument_list,
+    function_definition,
+    parameter_list,
+    block
+};
+
+// 变量体 varname(char) : value(cot_value)
+typedef struct
+{
+    char varname[VAR_NAME_MAX_LEN];
+    cot_value value;
+} cot_var;
+
+// 语法节点
+typedef struct
+{
+    unsigned short type;
+    cot_value value;
+    union {
+        cot_token *token_list;
+        struct cot_node *node_list;
+    };
+    unsigned short token_list_length;
+} cot_node;
 
 #endif //COCKTAIL_COT_UTIL_H
