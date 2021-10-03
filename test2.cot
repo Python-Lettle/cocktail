@@ -1,0 +1,16 @@
+/* heoo */
+/* he
+   *
+   *
+   */
+// world ! //
+import DUI;
+
+print(1.5);
+int i = 0;
+if(!true){
+}
+while (i<5){
+    i = i + 1;
+    print("hello world!");
+}

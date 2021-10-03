@@ -20,7 +20,7 @@
 #include <stdlib.h>
 
 // 利用token流分析语法
-void parse(int VAR_LIST_SHOW);
+void parse(int VAR_LIST_SHOW, int PARSER_TREE_SHOW);
 
 // 初始化一个全局块
 void init_global_block(cot_global_block *global);

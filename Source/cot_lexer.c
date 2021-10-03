@@ -51,8 +51,7 @@ void cot_token_scan(FILE * fpin, int showToken)
             continue;} //行数增加
 
         // 过滤符号跳过
-        if(IsFilter(ch)) {
-            continue;}
+        if(IsFilter(ch)) continue;
 
         // 判断关键字或变量名
         else if(IsLetter(ch)) {
@@ -295,6 +294,10 @@ void cot_token_scan(FILE * fpin, int showToken)
 
         if(showToken)
             cot_token_show(token);
+
+        token->next = (cot_token *) malloc (sizeof(cot_token));
+        token = token->next;
+
     }
 }
 

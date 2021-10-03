@@ -26,8 +26,7 @@
 /**********************************************************************
  * cot_token
  **********************************************************************/
-typedef struct cot_token *cot_token_p;
-typedef struct {
+typedef struct cot_token_tag{
     // 代行号
     short line;
     // 词位置
@@ -35,7 +34,7 @@ typedef struct {
     // token的值
     cot_value value;
     // 链表
-    cot_token_p next;
+    struct cot_token_tag *next;
 } cot_token;
 
 // 值的内容
@@ -181,22 +180,28 @@ typedef struct
 } cot_var;
 
 // 语法节点
-typedef struct
+// node                 -> node -> node
+// | node-node-node => token->node->token
+// | value
+// | type
+typedef struct cot_node_tag
 {
-    unsigned short type;
-    cot_value value;
+    unsigned short type;                // 结点语法类型
+    cot_value value;                    // 值
     union {
-        cot_token *token_list;
-        struct cot_node *node_list;
+        cot_token *token;               // 一个token
+        struct cot_node_tag *node_list; // 结点链表
     };
-    unsigned short token_list_length;
+
+    struct cot_node_tag *next;
 } cot_node;
 
 typedef struct
 {
-    cot_node statement_list;        // 语句链表
-    unsigned short var_count;       // 变量数量
-    cot_var *vars;              // 变量数组
+    cot_node *statement_list;        // 语句链表
+
+    unsigned short var_count;       // 变量数量.
+    cot_var *vars;                  // 变量数组.
 } cot_global_block;
 
 #endif //COCKTAIL_COT_UTIL_H

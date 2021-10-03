@@ -14,6 +14,7 @@
 // 程序传入参数是否显示token
 int ARG_TOKEN = 0;
 int VAR_LIST_SHOW = 0;
+int PARSER_TREE_SHOW = 0;
 FILE *fp;
 
 // 编译器帮助信息
@@ -58,6 +59,8 @@ int main(int argc, char *argv[]) {
             ARG_TOKEN = 1;
         } else if(!strcmp(argv[i],"--varlist")){
             VAR_LIST_SHOW = 1;
+        } else if(!strcmp(argv[i],"--parsertree")){
+            PARSER_TREE_SHOW = 1;
         } else {
 
             fp = fopen(argv[i], "r");   // 用文件名尝试打开
@@ -72,7 +75,7 @@ int main(int argc, char *argv[]) {
 
     // 打开文件成功
     cot_token_scan(fp, ARG_TOKEN);
-    parse(VAR_LIST_SHOW);
+    parse(VAR_LIST_SHOW,PARSER_TREE_SHOW);
 
     return 0;
 }

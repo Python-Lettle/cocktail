@@ -28,7 +28,7 @@ run:
 	./$(FILENAME) src.cot
 
 debug:
-	./$(FILENAME) test.cot --token --varlist
+	./$(FILENAME) test.cot --token --parsertree
 
 $(t)/cot_debug.o: $(s)/cot_debug.c
 	$(CC) $(CFlags) -c -o $@ $<
