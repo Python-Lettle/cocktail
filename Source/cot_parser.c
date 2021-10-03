@@ -127,40 +127,46 @@ char * check_var_name(char varname[50]);
 // 输出一个变量的信息(配合show_var_list使用)
 void show_one_var(cot_var var);
 
-void parse()
+void parse(int VAR_LIST_SHOW)
 {
-    cot_global_block_tag *global_block_p = &cot_global;
+    char * varname;
+    // 全局块指针
+    cot_global_block *global_block_p = &cot_global;
     init_global_block(global_block_p);
 
     cot_var var = {0};
-    strcpy(var.varname, check_var_name("testvar"));
-    var.value.type = INTEGER_LITERAL;
-    var.value.int_value = 233;
-    add_var(global_block_p, var);
+//    if((varname=check_var_name("testvar")))     strcpy(var.varname, varname);
+//    var.value.type = INTEGER_LITERAL;
+//    var.value.int_value = 233;
+//    add_var(global_block_p, var);
+//
+//    if((varname=check_var_name("hello")))       strcpy(var.varname, varname);
+//    var.value.type = STRING_LITERAL;
+//    strcpy(var.value.string_value,"Hello, world!");
+//    add_var(global_block_p, var);
 
-    strcpy(var.varname, check_var_name("hello"));
-    var.value.type = STRING_LITERAL;
-    strcpy(var.value.string_value,"Hello, world!");
-    add_var(global_block_p, var);
+    unsigned int i;
 
-    show_var_list(global_block_p);
+
+    if(VAR_LIST_SHOW)
+        show_var_list(global_block_p);
 
 }
 
-void init_global_block(cot_global_block_tag *global)
+void init_global_block(cot_global_block *global)
 {
     global->var_count = 0;
     global->vars = (cot_var *) malloc (VAR_LEN);
 }
 
-void add_var(cot_global_block_tag *global, cot_var var)
+void add_var(cot_global_block *global, cot_var var)
 {
     global->var_count++;
     global->vars = (cot_var *) realloc (global->vars,VAR_LEN * global->var_count);
     global->vars[global->var_count-1] = var;
 }
 
-void show_var_list(cot_global_block_tag *global)
+void show_var_list(cot_global_block *global)
 {
     int i;
     printf("+--Var List---------------------------------------------------+\n");

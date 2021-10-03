@@ -19,13 +19,14 @@
 #define MAX(a, b) (a > b ? a : b)
 #endif // MAX
 
-#define bool short
+#define bool char
 #define true 1
 #define false 0
 
 /**********************************************************************
  * cot_token
  **********************************************************************/
+typedef struct cot_token *cot_token_p;
 typedef struct {
     // 代行号
     short line;
@@ -33,6 +34,8 @@ typedef struct {
     short ch;
     // token的值
     cot_value value;
+    // 链表
+    cot_token_p next;
 } cot_token;
 
 // 值的内容
@@ -188,5 +191,12 @@ typedef struct
     };
     unsigned short token_list_length;
 } cot_node;
+
+typedef struct
+{
+    cot_node statement_list;        // 语句链表
+    unsigned short var_count;       // 变量数量
+    cot_var *vars;              // 变量数组
+} cot_global_block;
 
 #endif //COCKTAIL_COT_UTIL_H

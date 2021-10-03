@@ -14,6 +14,7 @@ COT_Kernel = $(t)/cot_debug.o $(t)/cot_lexer.o $(t)/cot_stack.o $(t)/cot_util.o 
 
 nop:
 	@echo "all      编译cocktail"
+	@echo "debug    调试test.cot"
 	@echo "clean    清理obj文件"
 
 all: $(COT_Kernel)
@@ -27,7 +28,7 @@ run:
 	./$(FILENAME) src.cot
 
 debug:
-	./$(FILENAME) test.cot --token
+	./$(FILENAME) test.cot --token --varlist
 
 $(t)/cot_debug.o: $(s)/cot_debug.c
 	$(CC) $(CFlags) -c -o $@ $<

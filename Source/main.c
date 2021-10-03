@@ -13,6 +13,7 @@
 
 // 程序传入参数是否显示token
 int ARG_TOKEN = 0;
+int VAR_LIST_SHOW = 0;
 FILE *fp;
 
 // 编译器帮助信息
@@ -43,7 +44,6 @@ static void usage(int exitcode) {
     exit(exitcode);
 }
 
-
 int main(int argc, char *argv[]) {
     if(argc == 1) {
         usage(1);
@@ -53,9 +53,11 @@ int main(int argc, char *argv[]) {
     for (int i=1;i < argc;i++){
         if(!strcmp(argv[i],"-h") || !strcmp(argv[i], "--help")){
             usage(0);
-        }else if(!strcmp(argv[i],"--token")){
+        }else if(!strcmp(argv[i],"--token")) {
             // 是否输出token分析过程
             ARG_TOKEN = 1;
+        } else if(!strcmp(argv[i],"--varlist")){
+            VAR_LIST_SHOW = 1;
         } else {
 
             fp = fopen(argv[i], "r");   // 用文件名尝试打开
@@ -70,7 +72,7 @@ int main(int argc, char *argv[]) {
 
     // 打开文件成功
     cot_token_scan(fp, ARG_TOKEN);
-    parse();
+    parse(VAR_LIST_SHOW);
 
     return 0;
 }
