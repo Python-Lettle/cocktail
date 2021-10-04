@@ -124,28 +124,28 @@ int IsDigit(char ch);
 
 // 一个Expression代表的类型
 enum {
-    COT_NULL_EXP,                   // 空值
-    COT_BOOLEAN_EXP,                // 布尔值
-    COT_INT_EXP,                    // 整数
-    COT_FLOAT_EXP,                  // 双精度小数
-    COT_STRING_EXP,                 // 字符串
-    COT_INSTANCE_EXP,               // 实例
-    COT_FUNCTION_EXP,               // 函数
+    COT_NULL_EXP,                   // 空值0
+    COT_BOOLEAN_EXP,                // 布尔值1
+    COT_INT_EXP,                    // 整数2
+    COT_FLOAT_EXP,                  // 双精度小数3
+    COT_STRING_EXP,                 // 字符串4
+    COT_INSTANCE_EXP,               // 实例5
+    COT_FUNCTION_EXP,               // 函数6
     // unary expression
-    COT_NOT_EXP,                    // ! 非
+    COT_NOT_EXP,                    // ! 非7
 
     // binary expression
-    COT_ASSIGN_EXP,                 // = 赋值
-    COT_ADD_EXP,                    // + 加法表达式
-    COT_SUB_EXP,                    // - 减法表达式
-    COT_MUL_EXP,                    // * 乘法表达式
-    COT_DIV_EXP,                    // / 除法表达式
-    COT_LOGICAL_AND_EXP,            // && 逻辑和
-    COT_LOGICAL_OR_EXP,             // || 逻辑与
+    COT_ASSIGN_EXP,                 // = 赋值8
+    COT_ADD_EXP,                    // + 加法表达式9
+    COT_SUB_EXP,                    // - 减法表达式10
+    COT_MUL_EXP,                    // * 乘法表达式11
+    COT_DIV_EXP,                    // / 除法表达式12
+    COT_LOGICAL_AND_EXP,            // && 逻辑和13
+    COT_LOGICAL_OR_EXP,             // || 逻辑与14
 
-    COT_FUNCTION_CALL_EXP,          // function() 函数调用
+    COT_FUNCTION_CALL_EXP,          // function() 函数调用15
 
-    COT_BLOCK_EXP
+    COT_BLOCK_EXP                   // 块16
 
 };
 

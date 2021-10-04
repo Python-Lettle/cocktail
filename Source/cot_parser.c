@@ -131,7 +131,7 @@
 //    if((varname=check_var_name("hello")))       strcpy(var.varname, varname);
 //    var.value.type = STRING_LITERAL;
 //    strcpy(var.value.string_value,"Hello, world!");
-//    add_var(cot_global, var);
+//    add_var(cot_global, var);s
 
 // 检查变量名的合法性
 char * check_var_name(char varname[50]);
@@ -140,7 +140,8 @@ void show_one_var(cot_var var);
 // 输出语法树
 void show_parser_tree(cot_node *);
 
-bool parse_function_call_exp(cot_node *node, cot_token *start);
+unsigned int parse_function_call_exp(cot_node *node, cot_token *start);
+unsigned int parse_int_var_define_exp(cot_node *node, cot_token *start);
 
 void parse(int VAR_LIST_SHOW, int PARSER_TREE_SHOW)
 {
@@ -154,18 +155,27 @@ void parse(int VAR_LIST_SHOW, int PARSER_TREE_SHOW)
 
     cot_token *token_head = cot_token_head;
 
-    while (token_head->value.type != SEMICOLON)
+    while (token_head->value.type)
     {
-
+        unsigned int next_time = 0;
         // 循环头为新的结点
         switch (token_head->value.type) {
             case IDENTIFIER:
-                // TODO: 暂且认定是调用函数
-                parse_function_call_exp(node, token_head);
+                if(token_head->next->value.type == LP)
+                    next_time = parse_function_call_exp(node, token_head);      // TODO: 暂且认定是调用函数
+                break;
+            case INT:
+                if(token_head->next->value.type == IDENTIFIER)
+                    next_time = parse_int_var_define_exp(node, token_head);
                 break;
         }
-
-        token_head = token_head->next;
+        if(next_time)
+            for(;next_time>0;next_time--)
+                token_head = token_head->next;
+        else
+            token_head = token_head->next;
+        node->next = (cot_node *) malloc(sizeof(cot_node));
+        node = node->next;
     }
 
     //TODO: 目前只保存一个语法
@@ -232,15 +242,13 @@ char * check_var_name(char varname[50]) {
  * @param start     token起始处
  * @return
  */
-bool parse_function_call_exp(cot_node *node, cot_token *start)
+unsigned int parse_function_call_exp(cot_node *node, cot_token *start)
 {
-//    cot_token *token    = (cot_token *) malloc (sizeof(cot_token));         // 最小单位token
-//    cot_node *node_list = (cot_node *)  malloc (sizeof(cot_node));          // 此语法分支结点链表
+    unsigned int next_time = 0;
 
     cot_node *node_term = (cot_node *) malloc (sizeof(cot_node));           // node_list 结点链表
     node->node_list = node_term;
     node->type = COT_FUNCTION_CALL_EXP;
-    // TODO: 这里的 node 关系还是混乱 需要整理才能用
 
     // 默认遇到 ; token 则停止此语句
     while (start->value.string_value[0] != ';')
@@ -265,10 +273,34 @@ bool parse_function_call_exp(cot_node *node, cot_token *start)
                 break;
         }
 
-        start = start->next;
+        start = start->next; next_time++;
     }
+    return next_time;
+}
+unsigned int parse_int_var_define_exp(cot_node *node, cot_token *start)
+{
+    unsigned int next_time = 0;
+    cot_node *node_term = (cot_node *) malloc (sizeof(cot_node));           // node_list 结点链表
+    node->node_list = node_term;
+    node->type = COT_ASSIGN_EXP;
+    while (start->value.string_value[0] != ';')
+    {
+        switch (start->value.type) {
+            case ASSIGN:
+            case STRING_LITERAL:
+            case IDENTIFIER:
+                node_term->type  = COT_BLOCK_EXP;
+                node_term->next = (cot_node *) malloc (sizeof(cot_node));
+                node_term->token = start;
+                node_term = node_term->next;
+                break;
+            default:
+                break;
+        }
 
-    return FALSE;
+        start = start->next; next_time++;
+    }
+    return next_time;
 }
 
 // TODO: 目前只打印一个语法
@@ -290,10 +322,36 @@ void show_parser_tree(cot_node *tree)
                 printf("| function (%d,%d): %s\n",tree->token->line, tree->token->ch, tree->token->value.string_value);
                 show_parser_tree(tree->next);
                 return;
+            case COT_ASSIGN_EXP:
+                printf("COT_ASSIGN_EXP ");
+                switch (tree->token->value.type) {
+                    case INT:
+                        printf("(INT)");
+                }
+                printf("\n");
+                // 如果此结点包含表达式
+                if (tree->node_list->type)
+                    show_parser_tree(tree->node_list);
+                else if(tree->next)
+                    show_parser_tree(tree->next);
+                break;
             case COT_BLOCK_EXP:
                 switch (tree->token->value.type) {
+                    case ASSIGN:
+                        printf("| ASSIGN (%d,%d): %s\n",tree->token->line, tree->token->ch, tree->token->value.string_value);
+                        break;
                     case STRING_LITERAL:
                         printf("| string (%d,%d): %s\n",tree->token->line, tree->token->ch, tree->token->value.string_value);
+                        break;
+                    case IDENTIFIER:
+                        printf("| identifier (%d,%d): %s\n",tree->token->line, tree->token->ch, tree->token->value.string_value);
+                        break;
+                    case INTEGER_LITERAL:
+                        printf("| int (%d,%d): %d\n",tree->token->line, tree->token->ch, tree->token->value.int_value);
+                        break;
+                    case FLOAT_LITERAL:
+                        printf("| float (%d,%d): %f\n",tree->token->line, tree->token->ch, tree->token->value.float_value);
+                        break;
                 }
                 show_parser_tree(tree->next);
                 return;
