@@ -39,7 +39,7 @@ typedef struct cot_token_tag{
 
 // 值的内容
 enum {
-    LP,             // (
+    LP=1,             // (
     RP,             // )
     LC,             // {
     RC,             // }

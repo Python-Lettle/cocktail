@@ -242,13 +242,30 @@ bool parse_function_call_exp(cot_node *node, cot_token *start)
     node->type = COT_FUNCTION_CALL_EXP;
     // TODO: 这里的 node 关系还是混乱 需要整理才能用
 
+    // 默认遇到 ; token 则停止此语句
     while (start->value.string_value[0] != ';')
     {
-        node_term->next = (cot_node *) malloc (sizeof(cot_node));
-        node_term->token = start;
-        node_term->type  = COT_BLOCK_EXP;
+        switch (start->value.type) {
+            case LP:
+            case RP:
+                break;
+            case IDENTIFIER:
+                node_term->type  = COT_FUNCTION_EXP;
+                node_term->next = (cot_node *) malloc (sizeof(cot_node));
+                node_term->token = start;
+                node_term = node_term->next;
+                break;
+            case STRING_LITERAL:
+                node_term->type  = COT_BLOCK_EXP;
+                node_term->next = (cot_node *) malloc (sizeof(cot_node));
+                node_term->token = start;
+                node_term = node_term->next;
+                break;
+            default:
+                break;
+        }
+
         start = start->next;
-        node_term = node_term->next;
     }
 
     return FALSE;
@@ -257,21 +274,27 @@ bool parse_function_call_exp(cot_node *node, cot_token *start)
 // TODO: 目前只打印一个语法
 void show_parser_tree(cot_node *tree)
 {
-//    if(tree->token->line) {
-//        printf("%d\n",tree->token->value.type);
-//    }
+    // 如果此结点空 则返回
     if(!tree) return;
+
+    // 结点type判断
     if(tree->type) {
         switch (tree->type) {
             case COT_FUNCTION_CALL_EXP:
                 printf("COT_FUNCTION_CALL_EXP\n");
+                // 如果此结点包含表达式
                 if (tree->node_list->type)
                     show_parser_tree(tree->node_list);
-                else
-                    printf("else\n");
                 break;
+            case COT_FUNCTION_EXP:
+                printf("| function (%d,%d): %s\n",tree->token->line, tree->token->ch, tree->token->value.string_value);
+                show_parser_tree(tree->next);
+                return;
             case COT_BLOCK_EXP:
-                printf("| token block(%d,%d): %s\n",tree->token->line, tree->token->ch, tree->token->value.string_value);
+                switch (tree->token->value.type) {
+                    case STRING_LITERAL:
+                        printf("| string (%d,%d): %s\n",tree->token->line, tree->token->ch, tree->token->value.string_value);
+                }
                 show_parser_tree(tree->next);
                 return;
             default:
@@ -283,6 +306,7 @@ void show_parser_tree(cot_node *tree)
         return;
     }
 
+    // 下一个语法点
     if (tree->next) {
         show_parser_tree(tree->next);
         return;
