@@ -8,7 +8,7 @@
 #define COMPILER_COT_TYPE_H
 
 // 一个token最长多少字节
-#define token_length_maximum 16
+#define token_length_maximum 50
 
 typedef struct {
     int type;

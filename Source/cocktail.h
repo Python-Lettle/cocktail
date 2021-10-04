@@ -15,6 +15,6 @@
 // token首
 cot_token *cot_token_head;
 // 全局块
-cot_global_block cot_global;
+cot_global_block *cot_global;
 
 #endif //COCKTAIL_COCKTAIL_H

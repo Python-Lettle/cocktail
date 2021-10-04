@@ -126,12 +126,12 @@
 //    if((varname=check_var_name("testvar")))     strcpy(var.varname, varname);
 //    var.value.type = INTEGER_LITERAL;
 //    var.value.int_value = 233;
-//    add_var(global_block_p, var);
+//    add_var(cot_global, var);
 //
 //    if((varname=check_var_name("hello")))       strcpy(var.varname, varname);
 //    var.value.type = STRING_LITERAL;
 //    strcpy(var.value.string_value,"Hello, world!");
-//    add_var(global_block_p, var);
+//    add_var(cot_global, var);
 
 // 检查变量名的合法性
 char * check_var_name(char varname[50]);
@@ -144,17 +144,19 @@ bool parse_function_call_exp(cot_node *node, cot_token *start);
 
 void parse(int VAR_LIST_SHOW, int PARSER_TREE_SHOW)
 {
+    cot_global = (cot_global_block *) malloc(sizeof(cot_global_block));
+    cot_global->var_count = 0;
+    cot_global->vars = (cot_var *) malloc(sizeof(cot_var));
+
     cot_node *node = (cot_node *) malloc (sizeof(cot_node));
-    
-    // 全局块指针
-    cot_global_block *global_block_p = &cot_global;
-    init_global_block(global_block_p);
-    global_block_p->statement_list = node;
+
+    cot_global->statement_list = node;
 
     cot_token *token_head = cot_token_head;
 
     while (token_head->value.type != SEMICOLON)
     {
+
         // 循环头为新的结点
         switch (token_head->value.type) {
             case IDENTIFIER:
@@ -168,15 +170,9 @@ void parse(int VAR_LIST_SHOW, int PARSER_TREE_SHOW)
 
     //TODO: 目前只保存一个语法
     if(VAR_LIST_SHOW)
-        show_var_list(global_block_p);
+        show_var_list(cot_global);
     if(PARSER_TREE_SHOW)
-        show_parser_tree(global_block_p->statement_list);
-}
-
-void init_global_block(cot_global_block *global)
-{
-    global->var_count = 0;
-    global->vars = (cot_var *) malloc (VAR_LEN);
+        show_parser_tree(cot_global->statement_list);
 }
 
 void add_var(cot_global_block *global, cot_var var)
@@ -242,21 +238,17 @@ bool parse_function_call_exp(cot_node *node, cot_token *start)
 //    cot_node *node_list = (cot_node *)  malloc (sizeof(cot_node));          // 此语法分支结点链表
 
     cot_node *node_term = (cot_node *) malloc (sizeof(cot_node));           // node_list 结点链表
-    node->node_list = (cot_node *) malloc (sizeof(cot_node));
+    node->node_list = node_term;
     node->type = COT_FUNCTION_CALL_EXP;
-
     // TODO: 这里的 node 关系还是混乱 需要整理才能用
+
     while (start->value.string_value[0] != ';')
     {
-        node_term = (cot_node *) malloc (sizeof(cot_node));
+        node_term->next = (cot_node *) malloc (sizeof(cot_node));
         node_term->token = start;
-        node_term->type  = block;
+        node_term->type  = COT_BLOCK_EXP;
         start = start->next;
         node_term = node_term->next;
-
-//        node_list->next = (cot_node *)  malloc (sizeof(cot_node));
-//        node_list->next = node_term;
-//        node_list = node_list->next;
     }
 
     return FALSE;
@@ -265,8 +257,10 @@ bool parse_function_call_exp(cot_node *node, cot_token *start)
 // TODO: 目前只打印一个语法
 void show_parser_tree(cot_node *tree)
 {
-    if(tree->token->value.type)
-        printf("%d\n",tree->token->value.type);
+//    if(tree->token->line) {
+//        printf("%d\n",tree->token->value.type);
+//    }
+    if(!tree) return;
     if(tree->type) {
         switch (tree->type) {
             case COT_FUNCTION_CALL_EXP:
@@ -276,17 +270,21 @@ void show_parser_tree(cot_node *tree)
                 else
                     printf("else\n");
                 break;
-            case block:
-                printf("| token block\n");
+            case COT_BLOCK_EXP:
+                printf("| token block(%d,%d): %s\n",tree->token->line, tree->token->ch, tree->token->value.string_value);
+                show_parser_tree(tree->next);
                 return;
             default:
                 printf("return back\n");
-                break;
+                return;
         }
-    } else if (tree->token->value.type) {
+    } else if (tree->token) {
         printf("| token\n");
         return;
     }
 
-    printf("Finish!\n");
+    if (tree->next) {
+        show_parser_tree(tree->next);
+        return;
+    }
 }

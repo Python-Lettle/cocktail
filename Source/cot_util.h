@@ -145,6 +145,8 @@ enum {
 
     COT_FUNCTION_CALL_EXP,          // function() 函数调用
 
+    COT_BLOCK_EXP
+
 };
 
 // 语法节点类型
