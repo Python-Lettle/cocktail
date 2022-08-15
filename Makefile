@@ -1,51 +1,32 @@
-# Author: Lettle
+# Author: Lettle, Robot_Steve
 
-# 变量
 CC = gcc
-FILENAME = cocktail
-CFlags = -g -Wall -Wno-strict-aliasing -fPIC
+name = cocktail
 
-s  = Source
-t  = target
+src = ./src/
+INCLUDE = -I ./Include/
 
-COT_Kernel = $(t)/cot_debug.o $(t)/cot_lexer.o $(t)/cot_stack.o $(t)/cot_util.o $(t)/cot_parser.o $(t)/main.o
+cocktail: main.o cot_debug.o cot_util.o cot_lexer.o cot_parser.o
+	$(CC) -o cocktail $^ $(INCLUDE)
 
-.PHONY: nop all clean run debug
+main.o: 
+	$(CC) -c $(src)main.c $(INCLUDE)
 
-nop:
-	@echo "all      编译cocktail"
-	@echo "debug    调试test.cot"
-	@echo "clean    清理obj文件"
+cot_debug.o: 
+	$(CC) -c $(src)cot_debug.c $(INCLUDE)
 
-all: $(COT_Kernel)
-	$(CC) -o $(FILENAME) $(COT_Kernel)
+cot_util.o:
+	$(CC) -c $(src)cot_util.c $(INCLUDE)
+
+cot_lexer.o: 
+	$(CC) -c $(src)cot_lexer.c $(INCLUDE)
+
+cot_parser.o: 
+	$(CC) -c $(src)cot_parser.c $(INCLUDE)
+
+.PHONY: clean
 
 clean:
-	rm -rf $(t)/*
-	rm -rf $(FILENAME)
-
-run:
-	./$(FILENAME) src.cot
-
-debug:
-	./$(FILENAME) test.cot --token --parsertree
-
-$(t)/cot_debug.o: $(s)/cot_debug.c
-	$(CC) $(CFlags) -c -o $@ $<
-
-$(t)/cot_lexer.o: $(s)/cot_lexer.c
-	$(CC) $(CFlags) -c -o $@ $<
-
-$(t)/cot_stack.o: $(s)/cot_stack.c
-	$(CC) $(CFlags) -c -o $@ $<
-
-$(t)/cot_util.o: $(s)/cot_util.c
-	$(CC) $(CFlags) -c -o $@ $<
-
-$(t)/cot_parser.o: $(s)/cot_parser.c
-	$(CC) $(CFlags) -c -o $@ $<
-
-$(t)/main.o: $(s)/main.c
-	$(CC) $(CFlags) -c -o $@ $<
-
+	-rm -rf *.o
+	-rm -rf *.exe
 

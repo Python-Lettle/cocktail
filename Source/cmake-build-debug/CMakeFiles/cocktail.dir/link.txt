@@ -1,1 +1,0 @@
-/usr/bin/gcc -g   CMakeFiles/cocktail.dir/cot_debug.c.o CMakeFiles/cocktail.dir/cot_stack.c.o CMakeFiles/cocktail.dir/cot_lexer.c.o CMakeFiles/cocktail.dir/cot_parser.c.o CMakeFiles/cocktail.dir/cot_util.c.o CMakeFiles/cocktail.dir/main.c.o  -o cocktail 

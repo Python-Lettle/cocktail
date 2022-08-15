@@ -1,19 +1,14 @@
 # Cocktail
 
-#### 介绍
-Lettle制作的Cocktail编程语言
+Lettle 制作的 Cocktail 编程语言
 
-#### 软件架构
-软件架构说明
+# 编译
 
+使用 `make` 命令即可编译. 
 
-#### 安装教程
+# 使用
 
-1.   make all
-
-#### 使用说明
-
-./cocktail src.cot
+`./cocktail src.cot`
 
 参数:
 
@@ -24,4 +19,6 @@ Lettle制作的Cocktail编程语言
 # 更新日志
 
 2021/9/3: 词法分析器基本竣工
+
+2022/8/16: 目录更新
 
